@@ -61,6 +61,34 @@ This MVP focuses on the core learning experience and parental oversight:
    - [ ] Testing & QA
    - [ ] Localization and multi-language support
 
+## Visual Style Guide
+
+Our design aims for a bright, fun, and dynamic experience. Below are the core visual guidelines to ensure consistency:
+
+### Color Palette
+- **Primary**: #3B82F6 (Blue) — for primary buttons, links, and highlights
+- **Secondary**: #FBBF24 (Amber) — for callouts and secondary accents
+- **Background**: #FFFFFF (White) — main background
+- **Surface**: #F3F4F6 (Gray-100) — cards and sections
+- **Text Primary**: #1F2937 (Gray-800) — headlines and body text
+- **Text Secondary**: #4B5563 (Gray-600) — secondary text and captions
+
+### Typography
+- **Font Family**: `Poppins`, `Arial`, sans-serif — modern, rounded, friendly
+- **Headings**: bold weight, clear hierarchy (H1 ~2.5rem, H2 ~2rem, H3 ~1.5rem)
+- **Body**: regular weight, 1rem size, 1.5 line-height
+
+### Borders & Shapes
+- **Corners**: 12px border-radius — softly rounded for cards, images, buttons
+- **Buttons & Inputs**: 8px border-radius for a slightly more subtle curve
+- **Cards**: slight elevation (box-shadow: 0 2px 8px rgba(0,0,0,0.1))
+
+### Motion & Interaction
+- **Transition**: 200ms ease-in-out on hover/focus states
+- **Hover Effects**: lighten background or shift elevation for interactive elements
+
+Use these tokens and guidelines across all screens to keep the UI cohesive and engaging.
+
 ## Contributing
 We will update this README continuously as development progresses. Feel free to contribute ideas, code, or feedback via issues and pull requests.
 
