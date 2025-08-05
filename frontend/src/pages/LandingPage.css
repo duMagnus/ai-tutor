@@ -72,7 +72,8 @@
 .how-it-works {
   background-color: var(--color-surface);
   padding: 2rem;
-  margin: 0 auto;
+  /* extra space above to separate from benefits section */
+  margin: 12rem auto 0;
   max-width: 800px;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);
