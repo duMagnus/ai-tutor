@@ -1,0 +1,37 @@
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+
+.signup-form label {
+  font-weight: 500;
+}
+
+.signup-form input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #D1D5DB;
+  border-radius: var(--border-radius-base);
+}
+
+.signup-form input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.error-text {
+  color: var(--color-secondary);
+  font-size: 0.875rem;
+}
+
+.alt-link {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.alt-link a {
+  color: var(--color-primary);
+}
