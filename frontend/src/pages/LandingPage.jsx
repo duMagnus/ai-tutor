@@ -41,6 +41,31 @@ function LandingPage() {
           </ul>
         </section>
 
+        {/* Benefits Section */}
+        <section className="benefits">
+          <h3>Principais Vantagens</h3>
+          <div className="benefit-cards">
+            <div className="benefit-card">
+              {/* Icon placeholder: ícone de personalização */}
+              <div className="image-placeholder icon" />
+              <h4>Aulas Personalizadas</h4>
+              <p>Ritmo e estilo adaptados às necessidades do seu filho.</p>
+            </div>
+            <div className="benefit-card">
+              {/* Icon placeholder: ícone de economia */}
+              <div className="image-placeholder icon" />
+              <h4>Mais Econômico</h4>
+              <p>Custa menos que aulas particulares tradicionais.</p>
+            </div>
+            <div className="benefit-card">
+              {/* Icon placeholder: ícone de suporte */}
+              <div className="image-placeholder icon" />
+              <h4>Suporte 24/7</h4>
+              <p>Acesso ao tutor IA a qualquer hora, sem agendamento.</p>
+            </div>
+          </div>
+        </section>
+
         {/* How It Works Section */}
         <section className="how-it-works">
           <h3>Como funciona</h3>
@@ -55,31 +80,67 @@ function LandingPage() {
         {/* Testimonials Section */}
         <section className="testimonials">
           <h3>O que dizem os pais</h3>
-          <div className="testimonial-cards">
-            <div className="testimonial-card">
-              {/* Imagem de perfil: avatar do pai/mãe */}
-              <div className="image-placeholder avatar" />
-              <p>
-                “O AI Tutor revolucionou o estudo da minha filha. O progresso é
-                visível a cada semana!”
-              </p>
-              <span>- João Silva</span>
-            </div>
-            <div className="testimonial-card">
-              <div className="image-placeholder avatar" />
-              <p>
-                “Agora meu filho estuda com autonomia e eu tenho total controle
-                do progresso.”
-              </p>
-              <span>- Maria Fernandes</span>
-            </div>
-            <div className="testimonial-card">
-              <div className="image-placeholder avatar" />
-              <p>
-                “A flexibilidade de estudar a qualquer hora e o feedback em
-                tempo real são incríveis.”
-              </p>
-              <span>- Carlos Pereira</span>
+          <div className="testimonials-slider">
+            <div className="slider-track">
+              {[
+                {
+                  author: 'João Silva',
+                  text:
+                    '“O AI Tutor revolucionou o estudo da minha filha. O progresso é visível a cada semana!”',
+                },
+                {
+                  author: 'Maria Fernandes',
+                  text:
+                    '“Agora meu filho estuda com autonomia e eu tenho total controle do progresso.”',
+                },
+                {
+                  author: 'Carlos Pereira',
+                  text:
+                    '“A flexibilidade de estudar a qualquer hora e o feedback em tempo real são incríveis.”',
+                },
+                {
+                  author: 'Ana Costa',
+                  text:
+                    '“Os relatórios de progresso ajudam a identificar pontos de melhoria rapidamente.”',
+                },
+                {
+                  author: 'Pedro Almeida',
+                  text:
+                    '“App intuitivo e didático. Meu filho ama estudar com o AI Tutor!”',
+                }
+              ].concat([
+                {
+                  author: 'João Silva',
+                  text:
+                    '“O AI Tutor revolucionou o estudo da minha filha. O progresso é visível a cada semana!”',
+                },
+                {
+                  author: 'Maria Fernandes',
+                  text:
+                    '“Agora meu filho estuda com autonomia e eu tenho total controle do progresso.”',
+                },
+                {
+                  author: 'Carlos Pereira',
+                  text:
+                    '“A flexibilidade de estudar a qualquer hora e o feedback em tempo real são incríveis.”',
+                },
+                {
+                  author: 'Ana Costa',
+                  text:
+                    '“Os relatórios de progresso ajudam a identificar pontos de melhoria rapidamente.”',
+                },
+                {
+                  author: 'Pedro Almeida',
+                  text:
+                    '“App intuitivo e didático. Meu filho ama estudar com o AI Tutor!”',
+                },
+              ]).map((t, i) => (
+                <div className="testimonial-card" key={i}>
+                  <div className="image-placeholder avatar" />
+                  <p>{t.text}</p>
+                  <span>- {t.author}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
