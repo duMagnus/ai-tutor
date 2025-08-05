@@ -30,7 +30,7 @@
 
 /* Uniform vertical spacing between sections */
 .landing-main > * + * {
-  margin-top: 8rem;
+  margin-top: 6rem;
 }
 
 .features {
@@ -72,8 +72,7 @@
 .how-it-works {
   background-color: var(--color-surface);
   padding: 2rem;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   max-width: 800px;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);
@@ -99,10 +98,9 @@
 }
 .slider-track {
   display: flex;
-  animation: scroll 90s linear infinite;
+  /* continuous scroll without gap-based blank */
+  animation: scroll 60s linear infinite;
 }
-.testimonial-card {
-.testimonial-card {
 .testimonial-card {
   flex: 0 0 auto;
   background-color: var(--color-surface);
@@ -111,6 +109,7 @@
   box-shadow: var(--shadow-card);
   max-width: 250px;
   text-align: center;
+  /* card-to-card spacing for seamless loop */
   margin-right: 1.5rem;
 }
 .testimonial-card .avatar {
