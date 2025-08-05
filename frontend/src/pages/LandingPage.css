@@ -30,7 +30,7 @@
 
 /* Uniform vertical spacing between sections */
 .landing-main > * + * {
-  margin-top: 6rem;
+  margin-top: 8rem;
 }
 
 .features {
@@ -99,9 +99,9 @@
 }
 .slider-track {
   display: flex;
-  gap: 1.5rem;
   animation: scroll 90s linear infinite;
 }
+.testimonial-card {
 .testimonial-card {
 .testimonial-card {
   flex: 0 0 auto;
@@ -111,6 +111,7 @@
   box-shadow: var(--shadow-card);
   max-width: 250px;
   text-align: center;
+  margin-right: 1.5rem;
 }
 .testimonial-card .avatar {
   width: 80px;
