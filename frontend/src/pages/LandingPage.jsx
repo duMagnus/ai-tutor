@@ -1,20 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { auth } from '../firebase';
+import Navbar from '../components/Navbar';
 import './LandingPage.css';
 
 function LandingPage() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await auth.signOut();
+  };
+
   return (
     <div className="landing-container">
+      <Navbar />
       <header className="landing-header">
         <h1>AI Tutor</h1>
-        <nav>
-          <Link to="/login" className="btn">
-            Entrar
-          </Link>
-          <Link to="/signup" className="btn btn-primary">
-            Criar Conta
-          </Link>
-        </nav>
       </header>
 
       <main className="landing-main">

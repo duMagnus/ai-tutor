@@ -87,11 +87,205 @@ Our design aims for a bright, fun, and dynamic experience. Below are the core vi
 - **Transition**: 200ms ease-in-out on hover/focus states
 - **Hover Effects**: lighten background or shift elevation for interactive elements
 
-Use these tokens and guidelines across all screens to keep the UI cohesive and engaging.
+### Spacing Guidelines
+
+To ensure a clean and visually appealing layout, follow these spacing guidelines:
+
+- **Padding**: Use consistent padding around elements to create a balanced layout. For example, `2rem` to `3rem` padding works well for page content.
+- **Gaps**: Maintain a gap of `1rem` to `2rem` between elements in flex containers for better readability and structure.
+- **Margins**: Apply margins to separate sections or components, ensuring they don't feel cramped.
+- **Responsiveness**: Adjust spacing dynamically for smaller screens to maintain usability and aesthetics.
+
+These guidelines aim to create a cohesive and user-friendly design across the application.
+
+## User Dashboard
+
+Once logged in, users will no longer see the landing page as their home. Instead, they will be directed to a personalized **User Dashboard**. This page is designed to provide a seamless and interactive experience for users to explore and engage with learning materials.
+
+### Features
+
+1. **Search Field for Study Topics**
+   - At the top of the dashboard, there will be a prominent text input field where users can type in topics they want to study.
+   - Example: A user can type "fractions" or "photosynthesis" to receive tailored content and exercises.
+   - A "Search" button will accompany the field to trigger the search functionality.
+
+2. **Prepared Topics Section**
+   - Below the search field, users will find a curated list of topics organized by subject.
+   - Each subject will have its own section with clickable cards for specific topics. For example:
+     - **Mathematics**: Addition, Subtraction, Division, Exponents, Fractions, Geometry.
+     - **Science**: Photosynthesis, States of Matter, Newton's Laws, The Solar System.
+     - **History**: Ancient Civilizations, World Wars, Industrial Revolution.
+     - **Languages**: Grammar, Vocabulary, Reading Comprehension.
+   - Clicking on a topic will navigate the user to a dedicated page with lessons, exercises, and progress tracking.
+
+3. **Design and Layout**
+   - The design will follow the existing platform's clean and modern aesthetic:
+     - **Header**: The navigation bar (already implemented) will remain at the top, providing quick access to "Home," "Logout," and other future features.
+     - **Search Field**: Centered at the top of the page, styled with a rounded border and a subtle shadow to make it stand out.
+     - **Topic Sections**: Each subject will have a distinct color theme for its cards (e.g., blue for Mathematics, green for Science).
+     - **Responsive Design**: The layout will adapt to different screen sizes, ensuring usability on both desktop and mobile devices.
+
+4. **Additional Features**
+   - **Progress Tracking**: Users can see their progress for each topic, displayed as a percentage or a progress bar.
+   - **Recommended Topics**: Based on the user's activity, the dashboard will suggest topics to explore next.
+   - **Quick Access Links**: A sidebar or a section for recently accessed topics or favorite topics.
+
+5. **Future Enhancements**
+   - **Gamification**: Add badges or rewards for completing topics or achieving milestones.
+   - **Community Features**: Allow users to ask questions or share insights on topics with others.
+   - **AI Tutor Assistance**: Integrate an AI chatbot to provide instant help or explanations for study queries.
+
+This dashboard will serve as the central hub for logged-in users, making the platform engaging, intuitive, and effective for learning.
+
+## Subject Page Template
+
+The **Subject Page** is a dynamic template used for all subjects. Instead of creating a new component for each subject, the page dynamically fetches and displays information based on the selected subject. This approach ensures consistency and reduces redundancy in the codebase.
+
+### Layout Details
+
+1. **Header**
+   - The page includes the existing navigation bar (`Navbar`) at the top for consistent navigation across the platform.
+
+2. **Subject Title**
+   - The subject name is prominently displayed at the top of the page.
+   - Example: "Matemática" or "Ciências".
+
+3. **Chat Window**
+   - The central feature of the page is a **chat window** where students can interact with an LLM (Large Language Model) for lessons and exercises.
+   - **Design**:
+     - The chat window occupies the majority of the page.
+     - Messages are displayed in a scrollable area, with the student's messages aligned to the right and the LLM's responses aligned to the left.
+     - A text input field is located at the bottom of the chat window for students to type their messages.
+     - A "Send" button is provided to submit messages.
+
+4. **Additional Information Section**
+   - Below the chat window, there is space for additional subject-related information, such as:
+     - Key concepts.
+     - Recommended exercises.
+     - Progress tracking.
+
+5. **Responsive Design**
+   - The layout is fully responsive, ensuring usability on both desktop and mobile devices.
+
+### Future Enhancements
+
+- **Database Integration**: Subject-specific information will be fetched from a database.
+- **LLM Integration**: The chat window will be connected to an LLM API to provide interactive lessons and exercises.
+- **Progress Tracking**: Students' interactions and progress will be tracked and displayed on the page.
+- **Gamification**: Add badges or rewards for completing lessons or achieving milestones.
+
+This template ensures a consistent and engaging experience for students across all subjects while allowing for future scalability and enhancements.
+
+## Localization
+
+The platform is designed for Brazilian users, and all user-facing text must be in Portuguese. This includes navigation, instructions, and any interactive elements such as buttons, labels, and messages. Ensure consistency in language usage across all pages and features.
 
 ## Contributing
 We will update this README continuously as development progresses. Feel free to contribute ideas, code, or feedback via issues and pull requests.
 
 ---
 
-*Let's learn and grow together!* 
+*Let's learn and grow together!*
+
+### Implementing LLM Functionality
+
+To enable interaction with the LLM (Large Language Model) in the application, follow these detailed steps:
+
+1. **Set Up OpenAI API**
+   - Obtain an API key from OpenAI by signing up at [OpenAI's website](https://openai.com/).
+   - Store the API key securely in Firebase Functions' environment configuration using the Firebase CLI:
+     ```bash
+     firebase functions:config:set openai.key="your_api_key_here"
+     ```
+   - Deploy the configuration to Firebase:
+     ```bash
+     firebase deploy --only functions
+     ```
+
+2. **Create a Firebase Function for OpenAI Integration**
+   - In the `functions` directory of your Firebase project, create a new HTTP function to handle communication with the OpenAI API.
+   - The function should:
+     - Accept user input from the frontend.
+     - Forward the input to the OpenAI API using the stored API key.
+     - Return the response from OpenAI to the frontend.
+   - Example structure for the function:
+     ```javascript
+     const functions = require("firebase-functions");
+     const axios = require("axios");
+
+     exports.llmHandler = functions.https.onRequest(async (req, res) => {
+       try {
+         const apiKey = functions.config().openai.key;
+         const { prompt } = req.body;
+
+         const response = await axios.post(
+           "https://api.openai.com/v1/completions",
+           {
+             model: "text-davinci-003",
+             prompt,
+             max_tokens: 150,
+           },
+           {
+             headers: { Authorization: `Bearer ${apiKey}` },
+           }
+         );
+
+         res.status(200).send(response.data);
+       } catch (error) {
+         res.status(500).send({ error: error.message });
+       }
+     });
+     ```
+
+3. **Deploy the Firebase Function**
+   - Deploy the function to Firebase:
+     ```bash
+     firebase deploy --only functions
+     ```
+
+4. **Frontend Integration**
+   - Update the frontend to send user input to the Firebase Function endpoint instead of directly calling the OpenAI API.
+   - Use `fetch` or `axios` to make HTTP requests to the Firebase Function.
+
+5. **Create a Utility for API Calls**
+   - Add a utility file (e.g., `src/utils/api.js`) in the frontend to handle requests to the Firebase Function.
+   - Example:
+     ```javascript
+     import axios from "axios";
+
+     export const sendMessageToLLM = async (prompt) => {
+       try {
+         const response = await axios.post("/api/llm", { prompt });
+         return response.data;
+       } catch (error) {
+         console.error("Error communicating with LLM:", error);
+         throw error;
+       }
+     };
+     ```
+
+6. **Integrate LLM in the Subject Page**
+   - Update the `SubjectPage.jsx` file to include functionality for sending user messages to the Firebase Function and displaying the responses.
+   - Use the utility created in step 5 to handle API calls.
+
+7. **Handle User Input and Responses**
+   - Modify the chat interface to send user input to the Firebase Function when the user presses Enter or clicks the send button.
+   - Display the LLM's response in the chat window.
+
+8. **Test the Integration**
+   - Run the application and navigate to the Subject Page.
+   - Test the chat functionality by sending messages to the LLM and verifying the responses.
+
+9. **Error Handling and Edge Cases**
+   - Implement error handling for API failures (e.g., network issues, invalid API key).
+   - Handle edge cases such as empty user input or long response times.
+
+10. **Styling and UI Enhancements**
+    - Ensure the chat interface is user-friendly and visually appealing.
+    - Add loading indicators while waiting for the LLM's response.
+
+11. **Deployment**
+    - Ensure the `.env` file and Firebase configuration are excluded from version control.
+    - Deploy both the frontend and backend services and verify the LLM functionality in the production environment.
+
+By following these steps, you can securely and efficiently integrate LLM functionality into the application, leveraging Firebase Functions to maintain best practices for security and scalability.

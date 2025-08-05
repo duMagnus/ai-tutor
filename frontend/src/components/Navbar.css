@@ -1,0 +1,43 @@
+/* Adjusted styles to fix logout button text size and align buttons to the right */
+
+.navbar {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff;
+  text-decoration: none;
+  margin-right: 2rem;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: flex-end;
+  align-items: center;
+  flex-grow: 1;
+}
+
+/* Ensure the logout button matches the style of other links */
+
+.navbar-link {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+  font-size: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.navbar-link:hover {
+  text-decoration: underline;
+}

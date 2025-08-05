@@ -5,6 +5,7 @@ import { auth } from '../firebase';
 
 import './Page.css';
 import './Signup.css';
+import Navbar from '../components/Navbar';
 
 function Signup() {
   const [email, setEmail] = useState('');
@@ -29,6 +30,7 @@ function Signup() {
 
   return (
     <div className="page-container">
+      <Navbar />
       <div className="card">
         <h2>Criar Conta</h2>
         <form onSubmit={handleSubmit} className="signup-form">
