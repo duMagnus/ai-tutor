@@ -110,8 +110,6 @@
   box-shadow: var(--shadow-card);
   max-width: 250px;
   text-align: center;
-.testimonial-card {
-  /* base card styles */
 }
 /* spacing between cards; no margin on the last card to avoid blank gap */
 .testimonial-card:not(:last-child) {
