@@ -93,14 +93,16 @@
   padding: 3rem 0;
   text-align: center;
 }
-.testimonials-slider {
-  overflow: hidden;
+.testimonial-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
   margin-top: 1.5rem;
 }
+.testimonials-slider,
 .slider-track {
-  display: flex;
-  /* continuous scroll without gap-based blank */
-  animation: scroll 60s linear infinite;
+  display: none;
 }
 .testimonial-card {
   flex: 0 0 auto;
@@ -112,9 +114,6 @@
   text-align: center;
 }
 /* spacing between cards; no margin on the last card to avoid blank gap */
-.testimonial-card:not(:last-child) {
-  margin-right: 1.5rem;
-}
 .testimonial-card .avatar {
   width: 80px;
   height: 80px;
@@ -131,10 +130,6 @@
   color: var(--text-secondary);
 }
 
-@keyframes scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
 
 /* Call to Action */
 .cta-section {

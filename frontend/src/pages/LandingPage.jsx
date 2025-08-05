@@ -80,67 +80,31 @@ function LandingPage() {
         {/* Testimonials Section */}
         <section className="testimonials">
           <h3>O que dizem os pais</h3>
-          <div className="testimonials-slider">
-            <div className="slider-track">
-              {[
-                {
-                  author: 'João Silva',
-                  text:
-                    '“O AI Tutor revolucionou o estudo da minha filha. O progresso é visível a cada semana!”',
-                },
-                {
-                  author: 'Maria Fernandes',
-                  text:
-                    '“Agora meu filho estuda com autonomia e eu tenho total controle do progresso.”',
-                },
-                {
-                  author: 'Carlos Pereira',
-                  text:
-                    '“A flexibilidade de estudar a qualquer hora e o feedback em tempo real são incríveis.”',
-                },
-                {
-                  author: 'Ana Costa',
-                  text:
-                    '“Os relatórios de progresso ajudam a identificar pontos de melhoria rapidamente.”',
-                },
-                {
-                  author: 'Pedro Almeida',
-                  text:
-                    '“App intuitivo e didático. Meu filho ama estudar com o AI Tutor!”',
-                }
-              ].concat([
-                {
-                  author: 'João Silva',
-                  text:
-                    '“O AI Tutor revolucionou o estudo da minha filha. O progresso é visível a cada semana!”',
-                },
-                {
-                  author: 'Maria Fernandes',
-                  text:
-                    '“Agora meu filho estuda com autonomia e eu tenho total controle do progresso.”',
-                },
-                {
-                  author: 'Carlos Pereira',
-                  text:
-                    '“A flexibilidade de estudar a qualquer hora e o feedback em tempo real são incríveis.”',
-                },
-                {
-                  author: 'Ana Costa',
-                  text:
-                    '“Os relatórios de progresso ajudam a identificar pontos de melhoria rapidamente.”',
-                },
-                {
-                  author: 'Pedro Almeida',
-                  text:
-                    '“App intuitivo e didático. Meu filho ama estudar com o AI Tutor!”',
-                },
-              ]).map((t, i) => (
-                <div className="testimonial-card" key={i}>
-                  <div className="image-placeholder avatar" />
-                  <p>{t.text}</p>
-                  <span>- {t.author}</span>
-                </div>
-              ))}
+          <div className="testimonial-cards">
+            <div className="testimonial-card">
+              <div className="image-placeholder avatar" />
+              <p>“O AI Tutor revolucionou o estudo da minha filha. O progresso é visível a cada semana!”</p>
+              <span>- João Silva</span>
+            </div>
+            <div className="testimonial-card">
+              <div className="image-placeholder avatar" />
+              <p>“Agora meu filho estuda com autonomia e eu tenho total controle do progresso.”</p>
+              <span>- Maria Fernandes</span>
+            </div>
+            <div className="testimonial-card">
+              <div className="image-placeholder avatar" />
+              <p>“A flexibilidade de estudar a qualquer hora e o feedback em tempo real são incríveis.”</p>
+              <span>- Carlos Pereira</span>
+            </div>
+            <div className="testimonial-card">
+              <div className="image-placeholder avatar" />
+              <p>“Os relatórios de progresso ajudam a identificar pontos de melhoria rapidamente.”</p>
+              <span>- Ana Costa</span>
+            </div>
+            <div className="testimonial-card">
+              <div className="image-placeholder avatar" />
+              <p>“App intuitivo e didático. Meu filho ama estudar com o AI Tutor!”</p>
+              <span>- Pedro Almeida</span>
             </div>
           </div>
         </section>
