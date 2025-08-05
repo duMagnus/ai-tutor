@@ -30,7 +30,7 @@
 
 /* Uniform vertical spacing between sections */
 .landing-main > * + * {
-  margin-top: 4rem;
+  margin-top: 6rem;
 }
 
 .features {
@@ -65,7 +65,7 @@
   height: 300px;
   background-color: #E5E7EB;
   border-radius: var(--border-radius-lg);
-  margin: 1.5rem 0;
+  margin: 2rem 0;
 }
 
 /* How It Works */
@@ -83,13 +83,13 @@
   height: 200px;
   background-color: #E5E7EB;
   border-radius: var(--border-radius-lg);
-  margin: 1.5rem 0;
+  margin: 2rem 0;
 }
 
 /* Testimonials */
 /* Testimonials slider */
 .testimonials {
-  padding: 2rem 0;
+  padding: 3rem 0;
   text-align: center;
 }
 .testimonials-slider {
@@ -98,8 +98,8 @@
 }
 .slider-track {
   display: flex;
-  gap: 1.5rem;
-  animation: scroll 30s linear infinite;
+  /* continuous scroll without gap-based blank */
+  animation: scroll 60s linear infinite;
 }
 .testimonial-card {
   flex: 0 0 auto;
@@ -109,6 +109,8 @@
   box-shadow: var(--shadow-card);
   max-width: 250px;
   text-align: center;
+  /* card-to-card spacing for seamless loop */
+  margin-right: 1.5rem;
 }
 .testimonial-card .avatar {
   width: 80px;
@@ -153,7 +155,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 2rem;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 .benefit-card {
   background-color: var(--color-surface);
