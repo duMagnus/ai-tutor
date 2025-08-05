@@ -13,35 +13,29 @@
 
 .landing-header h1 {
   margin: 0;
-  font-size: 1.5rem;
+  /* font-size handled by global typography */
 }
 
 .landing-header nav .btn {
   margin-left: 1rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid #3b82f6;
-  border-radius: 4px;
-  color: #3b82f6;
-  text-decoration: none;
 }
 
-.landing-header nav .btn-primary {
-  background-color: #3b82f6;
-  color: #ffffff;
-}
 
 .landing-main {
   flex: 1;
   padding: 2rem;
   text-align: center;
+  background-color: var(--color-background);
 }
 
 .features {
-  margin-top: 2rem;
+  margin: 2rem auto;
   text-align: left;
   max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  background-color: var(--color-surface);
+  padding: 1.5rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 .features ul {
@@ -52,5 +46,5 @@
 .landing-footer {
   text-align: center;
   padding: 1rem;
-  background-color: #f3f4f6;
+  background-color: var(--color-surface);
 }
