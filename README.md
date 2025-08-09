@@ -149,6 +149,11 @@ To ensure a clean and visually appealing layout, follow these spacing guidelines
 
 These guidelines aim to create a cohesive and user-friendly design across the application.
 
+### Best Practices: Avoid Inline Styles
+- **All component styling must be handled via CSS files or CSS-in-JS solutions.**
+- **Inline styles should be avoided** to ensure maintainability, consistency, and easier updates across the platform.
+- Always use CSS classes and follow the style guide for colors, spacing, borders, and typography.
+
 ## User Dashboard
 
 Once logged in, users will no longer see the landing page as their home. Instead, they will be directed to a personalized **User Dashboard**. This page is designed to provide a seamless and interactive experience for users to explore and engage with learning materials.
@@ -370,6 +375,7 @@ By following these steps, you can securely and efficiently integrate LLM functio
 - Implement parent registration/login (Firebase Auth, email/password).
 - Implement child invitation/onboarding (magic link or code).
 - Role-based access: parent (management), child (learning).
+- See [Parent/Child Authentication & Role Management](#parentchild-authentication--role-management) for details.
 
 ### 3. Parent Dashboard
 - Create dashboard for parents to view/manage child accounts.
@@ -431,3 +437,37 @@ By following these steps, you can securely and efficiently integrate LLM functio
 ---
 
 This roadmap is designed to build the MVP in logical, incremental steps, ensuring that each core feature is implemented and tested before moving to the next. Adjust priorities as needed based on user feedback and business requirements.
+
+## Parent/Child Authentication & Role Management
+
+This section describes how parent and child authentication and role management are implemented in the AI Tutor application.
+
+### Overview
+- The app uses Firebase Authentication for secure login and registration.
+- Users can register as either a parent or a child.
+- Parents can invite children to join via a magic link or invitation code.
+- User roles and relationships are stored in Firestore for access control and dashboard management.
+
+### Implementation Details
+1. **Role Selection During Signup**
+   - Users choose their role (parent or child) during registration.
+   - The selected role is saved in Firestore under the user's document.
+
+2. **Parent Invites Child**
+   - Parents can invite children by generating a magic link or code from their dashboard.
+   - Children use the link/code to register and are automatically associated with the inviting parent in Firestore.
+
+3. **Firestore Structure**
+   - `users` collection: Each document contains `uid`, `role`, and (for children) `parentId`.
+   - Parents may have a `children` subcollection for easy management.
+
+4. **Role-Based Access**
+   - The app checks user roles to display the appropriate dashboard and features.
+   - Parents see management tools; children see learning tools and progress.
+
+### Technologies Used
+- **Firebase Auth**: User authentication and session management.
+- **Firestore**: Storing user roles, relationships, and dashboard data.
+- **React**: Frontend UI and routing.
+
+---

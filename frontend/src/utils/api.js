@@ -41,3 +41,15 @@ export const streamMessageToLLM = (prompt, onChunk, onDone, onError) => {
   };
   return eventSource;
 };
+
+export const signup = async (data) => {
+  try {
+    const response = await axios.post(
+      "https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/signup",
+      data
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: error.message };
+  }
+};
