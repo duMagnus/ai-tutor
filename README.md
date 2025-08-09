@@ -193,7 +193,20 @@ To enable interaction with the LLM (Large Language Model) in the application, fo
 
 1. **Set Up OpenAI API**
    - Obtain an API key from OpenAI by signing up at [OpenAI's website](https://openai.com/).
-   - Store the API key securely in Firebase Functions' environment configuration using the Firebase CLI:
+   - For local development, store the API key in a `.env` file inside your `functions` directory:
+     ```env
+     OPENAI_API_KEY=your_api_key_here
+     ```
+   - Install the `dotenv` package in your `functions` directory:
+     ```bash
+     npm install dotenv
+     ```
+   - In your Cloud Function code, load the environment variable using `dotenv`:
+     ```javascript
+     require('dotenv').config();
+     const apiKey = process.env.OPENAI_API_KEY;
+     ```
+   - For production, use Firebase Functions' environment configuration:
      ```bash
      firebase functions:config:set openai.key="your_api_key_here"
      ```
@@ -212,11 +225,17 @@ To enable interaction with the LLM (Large Language Model) in the application, fo
      ```javascript
      const functions = require("firebase-functions");
      const axios = require("axios");
+     require('dotenv').config();
 
      exports.llmHandler = functions.https.onRequest(async (req, res) => {
        try {
-         const apiKey = functions.config().openai.key;
+         // Use .env for local dev, Firebase config for production
+         const apiKey = process.env.OPENAI_API_KEY || functions.config().openai.key;
          const { prompt } = req.body;
+
+         if (!prompt) {
+           return res.status(400).send({ error: 'Prompt is required.' });
+         }
 
          const response = await axios.post(
            "https://api.openai.com/v1/completions",

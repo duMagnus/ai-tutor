@@ -1,0 +1,42 @@
+import axios from "axios";
+
+// Utility to send a message to the LLM Firebase Function
+export const sendMessageToLLM = async (prompt) => {
+  try {
+    // Use the deployed Firebase Function URL
+    const response = await axios.post(
+      "https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler",
+      { prompt }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao comunicar com o LLM:", error);
+    throw error;
+  }
+};
+
+export const streamMessageToLLM = (prompt, onChunk, onDone, onError) => {
+  const url = `https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/stream?prompt=${encodeURIComponent(
+    prompt
+  )}`;
+  const eventSource = new EventSource(url);
+  let buffer = "";
+  eventSource.onmessage = (event) => {
+    if (event.data === "[DONE]") {
+      onDone(buffer);
+      eventSource.close();
+    } else if (event.data.startsWith("[ERROR]")) {
+      onError(event.data);
+      eventSource.close();
+    } else {
+      // Instead of treating each chunk as a new message, append to buffer and update last LLM message
+      buffer += event.data;
+      onChunk(buffer);
+    }
+  };
+  eventSource.onerror = (err) => {
+    onError("Erro ao comunicar com o LLM.");
+    eventSource.close();
+  };
+  return eventSource;
+};

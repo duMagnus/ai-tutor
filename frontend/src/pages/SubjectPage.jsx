@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaPaperPlane } from 'react-icons/fa';
 import './Page.css';
 import Navbar from '../components/Navbar';
+import { sendMessageToLLM, streamMessageToLLM } from '../utils/api';
 
 function SubjectPage() {
   const { subjectName } = useParams();
@@ -11,19 +12,46 @@ function SubjectPage() {
     { sender: 'LLM', text: `Bem-vindo à página de ${subjectName}! Como posso ajudá-lo hoje?` },
   ]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSend = () => {
     if (input.trim()) {
-      setMessages([...messages, { sender: 'Student', text: input }]);
+      setMessages((prev) => [...prev, { sender: 'Student', text: input }]);
+      setLoading(true);
+      const userInput = input;
       setInput('');
-
-      // Simulate LLM response (to be replaced with API call)
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          { sender: 'LLM', text: `Você perguntou sobre: ${input}. Vamos mergulhar nisso!` },
-        ]);
-      }, 1000);
+      let lastText = '';
+      let llmMessageIndex = null;
+      streamMessageToLLM(
+        userInput,
+        (fullText) => {
+          setMessages((prev) => {
+            // If we haven't added the LLM message yet, add it once and remember its index
+            if (llmMessageIndex === null) {
+              llmMessageIndex = prev.length;
+              return [...prev, { sender: 'LLM', text: fullText }];
+            } else if (prev[llmMessageIndex]) {
+              // Update only the last LLM message if it exists
+              const updated = [...prev];
+              updated[llmMessageIndex] = { ...updated[llmMessageIndex], text: fullText };
+              return updated;
+            } else {
+              // Defensive: fallback to appending if index is out of bounds
+              return [...prev, { sender: 'LLM', text: fullText }];
+            }
+          });
+        },
+        () => {
+          setLoading(false);
+        },
+        (error) => {
+          setMessages((prev) => [
+            ...prev,
+            { sender: 'LLM', text: 'Ocorreu um erro ao tentar responder. Tente novamente.' },
+          ]);
+          setLoading(false);
+        }
+      );
     }
   };
 
@@ -63,9 +91,10 @@ function SubjectPage() {
               onKeyPress={handleKeyPress}
               placeholder="Digite sua mensagem..."
               style={{ flex: 1, padding: '0.75rem', border: '1px solid #ddd', borderRadius: '8px', marginRight: '1rem' }}
+              disabled={loading}
             />
-            <button onClick={handleSend} style={{ padding: '0.75rem 1.5rem', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-              <FaPaperPlane size={16} />
+            <button onClick={handleSend} style={{ padding: '0.75rem 1.5rem', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }} disabled={loading}>
+              {loading ? <span style={{ fontSize: '0.9rem' }}>...</span> : <FaPaperPlane size={16} />}
             </button>
           </div>
         </div>
