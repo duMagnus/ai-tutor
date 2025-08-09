@@ -38,7 +38,6 @@ function SubjectPage() {
       streamMessageToLLM(
         userInput,
         (fullText) => {
-          console.log('LLM streamed text:', JSON.stringify(fullText));
           setMessages((prev) => {
             // Find the last LLM message (with or without loading)
             const idx = prev.map((msg, i) => ({msg, i})).reverse().find(({msg}) => msg.sender === 'LLM')?.i;

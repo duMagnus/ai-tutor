@@ -39,17 +39,10 @@ app.get('/stream', async (req, res) => {
     for await (const chunk of stream) {
       const content = chunk.choices?.[0]?.delta?.content;
       if (content) {
-        console.log('OpenAI stream chunk:', JSON.stringify(content));
         buffer += content;
-        // Also log the buffer to see the accumulated message
-        console.log('OpenAI stream buffer:', JSON.stringify(buffer));
-        // Send the chunk as-is, without escaping newlines
-        // Use encodeURIComponent to ensure special characters are not lost, but decode on frontend
         res.write(`data: ${encodeURIComponent(content)}\n\n`);
       }
     }
-    // After streaming, log the final buffer
-    console.log('Final OpenAI stream buffer:', JSON.stringify(buffer));
     res.write('data: [DONE]\n\n');
     res.end();
   } catch (error) {
