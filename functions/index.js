@@ -10,49 +10,6 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(bodyParser.json());
 
-app.post('/', async (req, res) => {
-  try {
-    const apiKey = process.env.OPENAI_API_KEY || (functions.config().openai && functions.config().openai.key);
-    if (!apiKey) {
-      console.error('OpenAI API key missing');
-      return res.status(500).send({ error: 'OpenAI API key missing' });
-    }
-    const { prompt } = req.body;
-    if (!prompt) {
-      return res.status(400).send({ error: 'Prompt is required.' });
-    }
-    try {
-      const openai = new OpenAI({ apiKey });
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: 'Você é um tutor amigável para crianças brasileiras.' },
-          { role: 'user', content: prompt }
-        ],
-        stream: false,
-      });
-      console.log('OpenAI completion:', JSON.stringify(completion));
-      // Defensive: handle OpenAI response for frontend
-      let llmText = 'Desculpe, não consegui responder.';
-      if (completion && completion.choices && completion.choices[0] && completion.choices[0].message && completion.choices[0].message.content) {
-        llmText = completion.choices[0].message.content;
-      }
-      res.status(200).send({ choices: [{ text: llmText }] });
-    } catch (openaiError) {
-      if (openaiError.response) {
-        console.error('OpenAI API error:', openaiError.response.status, openaiError.response.data);
-        res.status(500).send({ error: openaiError.response.data });
-      } else {
-        console.error('OpenAI API error:', openaiError.message);
-        res.status(500).send({ error: openaiError.message });
-      }
-    }
-  } catch (error) {
-    console.error('LLM Handler Error:', error);
-    res.status(500).send({ error: error.message });
-  }
-});
-
 app.get('/stream', async (req, res) => {
   const prompt = req.query.prompt;
   const apiKey = process.env.OPENAI_API_KEY || (functions.config().openai && functions.config().openai.key);
@@ -82,10 +39,17 @@ app.get('/stream', async (req, res) => {
     for await (const chunk of stream) {
       const content = chunk.choices?.[0]?.delta?.content;
       if (content) {
+        console.log('OpenAI stream chunk:', JSON.stringify(content));
         buffer += content;
-        res.write(`data: ${content}\n\n`); // Proper SSE format: each chunk ends with \n\n
+        // Also log the buffer to see the accumulated message
+        console.log('OpenAI stream buffer:', JSON.stringify(buffer));
+        // Send the chunk as-is, without escaping newlines
+        // Use encodeURIComponent to ensure special characters are not lost, but decode on frontend
+        res.write(`data: ${encodeURIComponent(content)}\n\n`);
       }
     }
+    // After streaming, log the final buffer
+    console.log('Final OpenAI stream buffer:', JSON.stringify(buffer));
     res.write('data: [DONE]\n\n');
     res.end();
   } catch (error) {

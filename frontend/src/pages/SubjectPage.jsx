@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaPaperPlane } from 'react-icons/fa';
 import './Page.css';
@@ -36,6 +38,7 @@ function SubjectPage() {
       streamMessageToLLM(
         userInput,
         (fullText) => {
+          console.log('LLM streamed text:', JSON.stringify(fullText));
           setMessages((prev) => {
             // Find the last LLM message (with or without loading)
             const idx = prev.map((msg, i) => ({msg, i})).reverse().find(({msg}) => msg.sender === 'LLM')?.i;
@@ -117,9 +120,30 @@ function SubjectPage() {
                       color: msg.sender === 'Student' ? '#fff' : '#1f2937',
                       maxWidth: '70%',
                       wordBreak: 'break-word',
+                      overflowWrap: 'break-word',
                     }}
                   >
-                    {msg.text}
+                    <div style={{paddingLeft: '0.5rem'}}>
+                      {msg.sender === 'LLM' ? (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkBreaks]}
+                          components={{
+                            p: ({node, ...props}) => <p style={{margin: 0, whiteSpace: 'pre-line'}} {...props} />,
+                            br: () => <br />,
+                            ul: ({node, ...props}) => <ul style={{paddingLeft: '1.5em', margin: 0}} {...props} />,
+                            ol: ({node, ...props}) => <ol style={{paddingLeft: '1.5em', margin: 0}} {...props} />,
+                            li: ({node, ...props}) => <li style={{marginLeft: 0, paddingLeft: 0}} {...props} />,
+                          }}
+                        >{msg.text}</ReactMarkdown>
+                      ) : (
+                        msg.text.split('\n').map((line, i) => (
+                          <React.Fragment key={i}>
+                            {line}
+                            <br />
+                          </React.Fragment>
+                        ))
+                      )}
+                    </div>
                   </span>
                 )}
               </div>

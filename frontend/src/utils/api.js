@@ -29,8 +29,9 @@ export const streamMessageToLLM = (prompt, onChunk, onDone, onError) => {
       onError(event.data);
       eventSource.close();
     } else {
-      // Instead of treating each chunk as a new message, append to buffer and update last LLM message
-      buffer += event.data;
+      // Decode the chunk to restore newlines and special characters
+      const decodedChunk = decodeURIComponent(event.data);
+      buffer += decodedChunk;
       onChunk(buffer);
     }
   };
