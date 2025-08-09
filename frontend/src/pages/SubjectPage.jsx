@@ -111,28 +111,17 @@ function SubjectPage() {
                     </svg>
                   </span>
                 ) : (
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      padding: '0.75rem 1.25rem',
-                      borderRadius: '18px',
-                      backgroundColor: msg.sender === 'Student' ? '#3b82f6' : '#e5e7eb',
-                      color: msg.sender === 'Student' ? '#fff' : '#1f2937',
-                      maxWidth: '70%',
-                      wordBreak: 'break-word',
-                      overflowWrap: 'break-word',
-                    }}
-                  >
-                    <div style={{paddingLeft: '0.5rem'}}>
+                  <span className={msg.sender === 'Student' ? 'chat-bubble student-bubble' : 'chat-bubble llm-bubble'}>
+                    <div className="chat-bubble-content">
                       {msg.sender === 'LLM' ? (
                         <ReactMarkdown
                           remarkPlugins={[remarkBreaks]}
                           components={{
-                            p: ({node, ...props}) => <p style={{margin: 0, whiteSpace: 'pre-line'}} {...props} />,
+                            p: ({node, ...props}) => <p className="chat-bubble-paragraph" {...props} />,
                             br: () => <br />,
-                            ul: ({node, ...props}) => <ul style={{paddingLeft: '1.5em', margin: 0}} {...props} />,
-                            ol: ({node, ...props}) => <ol style={{paddingLeft: '1.5em', margin: 0}} {...props} />,
-                            li: ({node, ...props}) => <li style={{marginLeft: 0, paddingLeft: 0}} {...props} />,
+                            ul: ({node, ...props}) => <ul className="chat-bubble-list" {...props} />,
+                            ol: ({node, ...props}) => <ol className="chat-bubble-list" {...props} />,
+                            li: ({node, ...props}) => <li className="chat-bubble-list-item" {...props} />,
                           }}
                         >{msg.text}</ReactMarkdown>
                       ) : (
