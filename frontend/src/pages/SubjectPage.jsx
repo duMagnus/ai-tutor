@@ -20,25 +20,23 @@ function SubjectPage() {
       setLoading(true);
       const userInput = input;
       setInput('');
-      let lastText = '';
       let llmMessageIndex = null;
+      // Add a loading message from LLM
+      setMessages((prev) => [...prev, { sender: 'LLM', loading: true, text: '' }]);
       streamMessageToLLM(
         userInput,
         (fullText) => {
           setMessages((prev) => {
-            // If we haven't added the LLM message yet, add it once and remember its index
-            if (llmMessageIndex === null) {
-              llmMessageIndex = prev.length;
-              return [...prev, { sender: 'LLM', text: fullText }];
-            } else if (prev[llmMessageIndex]) {
-              // Update only the last LLM message if it exists
+            // Find the last LLM message (with or without loading)
+            const idx = prev.map((msg, i) => ({msg, i})).reverse().find(({msg}) => msg.sender === 'LLM')?.i;
+            if (idx !== undefined) {
+              // Update the last LLM message with the streamed text
               const updated = [...prev];
-              updated[llmMessageIndex] = { ...updated[llmMessageIndex], text: fullText };
+              updated[idx] = { sender: 'LLM', text: fullText };
               return updated;
-            } else {
-              // Defensive: fallback to appending if index is out of bounds
-              return [...prev, { sender: 'LLM', text: fullText }];
             }
+            // Fallback: append if not found
+            return [...prev, { sender: 'LLM', text: fullText }];
           });
         },
         () => {
@@ -77,9 +75,43 @@ function SubjectPage() {
               <div
                 key={index}
                 className={`chat-message ${msg.sender === 'Student' ? 'student' : 'llm'}`}
-                style={{ marginBottom: '1rem', textAlign: msg.sender === 'Student' ? 'right' : 'left' }}
+                style={{
+                  marginBottom: '1rem',
+                  textAlign: msg.sender === 'Student' ? 'right' : 'left',
+                  display: 'flex',
+                  justifyContent: msg.sender === 'Student' ? 'flex-end' : 'flex-start',
+                }}
               >
-                {msg.text}
+                {msg.loading ? (
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      padding: '0.75rem 1.25rem',
+                      borderRadius: '18px',
+                      backgroundColor: '#e5e7eb',
+                      color: '#1f2937',
+                      maxWidth: '70%',
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 50 50" style={{ verticalAlign: 'middle', marginRight: '0.5rem', animation: 'spin 1s linear infinite' }}>
+                      <circle cx="25" cy="25" r="20" stroke="#3b82f6" strokeWidth="5" fill="none" strokeDasharray="90" strokeDashoffset="60" />
+                    </svg>
+                  </span>
+                ) : (
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      padding: '0.75rem 1.25rem',
+                      borderRadius: '18px',
+                      backgroundColor: msg.sender === 'Student' ? '#3b82f6' : '#e5e7eb',
+                      color: msg.sender === 'Student' ? '#fff' : '#1f2937',
+                      maxWidth: '70%',
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    {msg.text}
+                  </span>
+                )}
               </div>
             ))}
           </div>
@@ -94,11 +126,20 @@ function SubjectPage() {
               disabled={loading}
             />
             <button onClick={handleSend} style={{ padding: '0.75rem 1.5rem', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }} disabled={loading}>
-              {loading ? <span style={{ fontSize: '0.9rem' }}>...</span> : <FaPaperPlane size={16} />}
+              {loading ? (
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="20" height="20" viewBox="0 0 50 50" style={{ animation: 'spin 1s linear infinite' }}>
+                    <circle cx="25" cy="25" r="20" stroke="#fff" strokeWidth="5" fill="none" strokeDasharray="90" strokeDashoffset="60" />
+                  </svg>
+                </span>
+              ) : (
+                <FaPaperPlane size={16} />
+              )}
             </button>
           </div>
         </div>
       </div>
+      {/* Move keyframes to CSS file instead of inline style */}
     </div>
   );
 }
