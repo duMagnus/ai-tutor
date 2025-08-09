@@ -40,26 +40,77 @@ This MVP focuses on the core learning experience and parental oversight:
 - Progress tracking and module completion status
 
 ## Roadmap & Next Steps
-1. **Project Initialization**
-   - [x] Set up React Vite frontend boilerplate in `frontend` directory
-   - [ ] Configure Firebase project (Auth, Firestore, Functions, Hosting)
-   - [ ] Store OpenAI API keys securely (e.g., `.env` for local dev, Cloud Functions config)
-2. **Authentication & Onboarding**
-   - [ ] Implement parent sign-up and subscription flow
-   - [ ] Child account invitation & onboarding
-3. **AI Curriculum & Tutoring**
-   - [ ] Cloud Function for curriculum generation (GPT-4)
-   - [ ] Cloud Function for interactive tutoring sessions (GPT-4o/GPT-3.5)
-   - [ ] UI components for lesson delivery and exercises
-4. **Parental Dashboard**
-   - [ ] Monitor child sessions, time spent, and progress
-   - [ ] Track topics completed and areas needing review
-5. **Payment & Billing**
-   - [ ] Integrate Stripe for subscription management
-6. **Quality Enhancements**
-   - [ ] UX improvements and accessibility
-   - [ ] Testing & QA
-   - [ ] Localization and multi-language support
+
+### MVP Features
+
+**Parent/Child Authentication & Role Management**
+- Parents register, invite children, and manage accounts using Firebase Authentication.
+- Role-based access: parents have management privileges, children have learning-only access.
+- Suggestion: Use email/password for parents, magic link or code for child onboarding.
+
+**Parent Dashboard**
+- View child accounts, monitor progress, time spent, and learning metrics.
+- Technologies: React (frontend), Firestore (backend), charts via Chart.js or Recharts.
+- Style: Clean, data-focused, with fun accents for engagement.
+
+**Child Dashboard**
+- Select/request study topics, view progress, and access lessons.
+- Technologies: React, Firestore, OpenAI API for lesson suggestions.
+- Style: Bright, playful, with clear navigation and progress bars.
+
+**AI Curriculum Generation**
+- Use OpenAI (GPT-4o) to create lesson plans and exercise themes based on selected topics.
+- Technologies: Firebase Functions (Node.js), OpenAI SDK, Firestore for storing plans.
+- Suggestion: Cache generated plans for efficiency.
+
+**AI Tutoring Sessions**
+- Interactive, step-by-step lessons delivered via chat interface.
+- Technologies: React (frontend), Firebase Functions (streaming), OpenAI API.
+- Style: Chat bubbles, animated responses, markdown support for math/code.
+
+**Progress Tracking**
+- Mark modules as complete, show progress bars, and track learning history.
+- Technologies: Firestore, React, progress bar components.
+- Style: Visual, gamified (badges, streaks optional).
+
+**Subscription Management**
+- Parents subscribe to enable platform usage for their children.
+- Technologies: Stripe API, Firebase Functions, Firestore for plan status.
+- Suggestion: Use Stripe Checkout for simplicity.
+
+**Payment Integration**
+- Stripe integration for handling subscriptions and payments.
+- Technologies: Stripe, Firebase Functions (webhooks), Firestore.
+- Style: Secure, clear, with branded payment forms.
+
+**Localization**
+- All user-facing text in Portuguese.
+- Technologies: i18n library (e.g., react-i18next), content in Firestore.
+- Style: Consistent, culturally appropriate for Brazilian users.
+
+<hr>
+
+### Required Pages
+
+- **Landing Page**: Overview, pricing, and registration. Bright, inviting, with clear CTAs. Technologies: React, styled-components or CSS modules.
+- **Parent Sign-Up/Login Page**: Secure registration and login. Technologies: Firebase Auth, React.
+- **Parent Dashboard**: See above. Technologies: React, Firestore.
+- **Child Invitation/Onboarding Page**: Invite children, onboard with code/magic link. Technologies: React, Firebase Auth.
+- **Child Login Page**: Simple login for children. Technologies: Firebase Auth, React.
+- **Child Dashboard**: See above.
+- **Subject Page (Dynamic)**: Lessons, chat with AI tutor, progress. Technologies: React, OpenAI API, Firestore.
+- **Subscription/Payment Page**: Select plan, enter payment details. Technologies: Stripe, React.
+- **Error/Status Pages**: For failed payments, access issues, etc. Technologies: React.
+
+<hr>
+
+### Monetary Details
+
+- **Subscription Plans**: At least one paid plan (monthly/annual), possibly a free trial. Suggestion: R$29/month or R$290/year, with 7-day free trial.
+- **Payment Flow**: Stripe integration for secure payments. Use Stripe Checkout for PCI compliance.
+- **Plan Management**: Ability for parents to upgrade, downgrade, or cancel subscriptions. Technologies: Stripe Customer Portal, Firebase Functions for syncing status.
+
+---
 
 ## Visual Style Guide
 
@@ -308,3 +359,75 @@ To enable interaction with the LLM (Large Language Model) in the application, fo
     - Deploy both the frontend and backend services and verify the LLM functionality in the production environment.
 
 By following these steps, you can securely and efficiently integrate LLM functionality into the application, leveraging Firebase Functions to maintain best practices for security and scalability.
+
+## MVP Roadmap (Step-by-Step)
+
+### 1. Project Setup & Core Infrastructure
+- Initialize repository, configure Firebase (Auth, Firestore, Functions, Hosting), and set up React frontend.
+- Set up environment variables and secrets management for OpenAI and Stripe.
+
+### 2. Authentication & Role Management
+- Implement parent registration/login (Firebase Auth, email/password).
+- Implement child invitation/onboarding (magic link or code).
+- Role-based access: parent (management), child (learning).
+
+### 3. Parent Dashboard
+- Create dashboard for parents to view/manage child accounts.
+- Display child progress, time spent, and learning metrics (charts).
+- Technologies: React, Firestore, Chart.js/Recharts.
+
+### 4. Child Dashboard & Onboarding
+- Child login and onboarding flow.
+- Dashboard for children to select/request study topics, view progress, and access lessons.
+- Technologies: React, Firestore, OpenAI API.
+
+### 5. Localization
+- Implement i18n (react-i18next) and ensure all user-facing text is in Portuguese.
+- Test with Brazilian users for cultural fit.
+
+### 6. AI Curriculum Generation
+- Integrate OpenAI (GPT-4o) via Firebase Functions to generate lesson plans and exercise themes.
+- Cache generated plans in Firestore for efficiency.
+
+### 7. Subject Page & AI Tutoring Sessions
+- Dynamic Subject Page for lessons and chat with AI tutor.
+- Implement interactive, step-by-step lessons via chat interface (streaming, markdown support).
+- Technologies: React, Firebase Functions, OpenAI API.
+
+### 8. Progress Tracking
+- Mark modules as complete, show progress bars, and track learning history.
+- Gamification: badges, streaks (optional).
+- Technologies: Firestore, React.
+
+### 9. Subscription Management & Payment Integration
+- Implement Stripe subscription plans (monthly/annual, free trial).
+- Payment flow: Stripe Checkout, Customer Portal for plan management.
+- Technologies: Stripe, Firebase Functions, Firestore.
+
+### 10. Required Pages Implementation
+- Landing Page: Overview, pricing, registration.
+- Parent Sign-Up/Login Page
+- Parent Dashboard
+- Child Invitation/Onboarding Page
+- Child Login Page
+- Child Dashboard
+- Subject Page (Dynamic)
+- Subscription/Payment Page
+- Error/Status Pages
+
+### 11. UI/UX Polish & Accessibility
+- Apply style guide, spacing, and responsive design.
+- Add accessibility features and mobile-first optimizations.
+- Use Material UI or Chakra UI for rapid, consistent styling.
+
+### 12. Testing & QA
+- Manual and automated testing of all flows.
+- User feedback and bug fixing.
+
+### 13. Deployment & Monitoring
+- Deploy frontend and backend to Firebase.
+- Set up monitoring, error tracking, and analytics.
+
+---
+
+This roadmap is designed to build the MVP in logical, incremental steps, ensuring that each core feature is implemented and tested before moving to the next. Adjust priorities as needed based on user feedback and business requirements.
