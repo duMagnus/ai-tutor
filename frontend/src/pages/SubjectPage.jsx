@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaPaperPlane } from 'react-icons/fa';
 import './Page.css';
@@ -13,6 +13,16 @@ function SubjectPage() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const chatMessagesRef = useRef(null);
+
+  useEffect(() => {
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTo({
+        top: chatMessagesRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }, [messages]);
 
   const handleSend = () => {
     if (input.trim()) {
@@ -70,7 +80,7 @@ function SubjectPage() {
           <h1 style={{ fontSize: '2.5rem', color: '#1f2937', margin: 0 }}>{subjectName}</h1>
         </div>
         <div className="chat-window" style={{ flex: 1, display: 'flex', flexDirection: 'column', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
-          <div className="chat-messages" style={{ flex: 1, overflowY: 'auto', padding: '1rem', backgroundColor: '#f9f9f9' }}>
+          <div className="chat-messages" ref={chatMessagesRef} style={{ flex: 1, overflowY: 'auto', padding: '1rem', backgroundColor: '#f9f9f9' }}>
             {messages.map((msg, index) => (
               <div
                 key={index}
