@@ -75,3 +75,72 @@ export const getParentChildren = async (parentUid) => {
     throw error.response?.data || { message: error.message };
   }
 };
+
+export const generateCurriculum = async ({ parentId, childId, subject, ageRange }) => {
+  try {
+    const response = await axios.post(
+      'https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/generateCurriculum',
+      { parentId, childId, subject, ageRange }
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: error.message };
+  }
+};
+
+// Approve curriculum API utility
+export const approveCurriculum = async ({ curriculumId, parentId, childId }) => {
+  try {
+    const response = await axios.post(
+      "https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/approveCurriculum",
+      {
+        curriculumId,
+        parentId,
+        childId,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao aprovar o currículo:", error);
+    throw error;
+  }
+};
+
+export const rejectCurriculum = async ({ curriculumId, parentId, reason }) => {
+  try {
+    const response = await axios.post(
+      "https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/rejectCurriculum",
+      { curriculumId, parentId, reason }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao rejeitar o currículo:", error);
+    throw error;
+  }
+};
+
+export const requestCurriculumChanges = async ({ curriculumId, parentId, changeRequest }) => {
+  try {
+    const response = await axios.post(
+      "https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/requestCurriculumChanges",
+      { curriculumId, parentId, changeRequest }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao solicitar alterações no currículo:", error);
+    throw error;
+  }
+};
+
+export const cancelCurriculum = async ({ curriculumId, parentId }) => {
+  try {
+    const response = await axios.post(
+      "https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/cancelCurriculum",
+      { curriculumId, parentId }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao cancelar o currículo:", error);
+    throw error;
+  }
+};

@@ -9,13 +9,12 @@ const admin = require('firebase-admin');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 
+admin.initializeApp();
+
 const app = express();
 app.use(cors({ origin: true }));
 app.use(bodyParser.json());
 
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
 const db = admin.firestore();
 
 app.get('/stream', async (req, res) => {
@@ -152,6 +151,162 @@ app.get('/api/parent/children', async (req, res) => {
     return res.status(200).json({ children });
   } catch (err) {
     return res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/generateCurriculum', async (req, res) => {
+  try {
+    const { parentId, childId, subject, ageRange } = req.body;
+    if (!parentId || !childId || !subject || !ageRange) {
+      return res.status(400).json({ error: 'Missing required fields.' });
+    }
+    const prompt = `You are an expert educational planner. Create a curriculum for the subject: ${subject}.
+
+Follow this structure:
+1. Overview: Briefly describe the subject and its importance for the child's age group.
+2. Learning Objectives: List 3-5 clear, age-appropriate objectives for the curriculum.
+3. Key Concepts: List the main concepts or skills to be covered.
+4. Lesson Breakdown: Divide the curriculum into 4-8 lessons/modules. For each lesson, provide:
+   - Title
+   - Description
+   - Learning goals
+   - Suggested activities/exercises
+5. Assessment: Suggest ways to assess the child's understanding (quizzes, projects, etc).
+6. Additional Resources: Recommend further reading, videos, or interactive materials (if relevant).
+
+All content must be in Portuguese and suitable for Brazilian children aged ${ageRange}.`;
+    const apiKey = process.env.OPENAI_API_KEY || (functions.config().openai && functions.config().openai.key);
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 2000,
+        temperature: 0.7,
+      },
+      {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      }
+    );
+    const curriculumText = response.data.choices[0].message.content;
+    const docRef = admin.firestore().collection('curricula').doc();
+    await docRef.set({
+      parentId,
+      childId,
+      subject,
+      ageRange,
+      curriculum: curriculumText,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      status: 'pending_review',
+    });
+    res.status(200).json({ curriculumId: docRef.id, curriculum: curriculumText });
+  } catch (error) {
+    console.error('Error generating curriculum:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/approveCurriculum', async (req, res) => {
+  const { curriculumId, parentId, childId } = req.body;
+  if (!curriculumId || !parentId || !childId) {
+    return res.status(400).json({ error: 'Missing required fields.' });
+  }
+  try {
+    const curriculumRef = db.collection('curricula').doc(curriculumId);
+    await curriculumRef.update({
+      status: 'approved',
+      approvedBy: parentId,
+      assignedTo: childId,
+      approvedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    // Optionally, add reference to child document
+    const childRef = db.collection('users').doc(childId);
+    await childRef.update({
+      assignedCurriculum: admin.firestore.FieldValue.arrayUnion(curriculumId)
+    });
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error approving curriculum:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/rejectCurriculum', async (req, res) => {
+  const { curriculumId, parentId, reason } = req.body;
+  if (!curriculumId || !parentId) {
+    return res.status(400).json({ error: 'Missing required fields.' });
+  }
+  try {
+    const curriculumRef = db.collection('curricula').doc(curriculumId);
+    await curriculumRef.update({
+      status: 'rejected',
+      rejectedBy: parentId,
+      rejectedAt: admin.firestore.FieldValue.serverTimestamp(),
+      rejectionReason: reason || '',
+    });
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error rejecting curriculum:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/requestCurriculumChanges', async (req, res) => {
+  const { curriculumId, parentId, changeRequest } = req.body;
+  if (!curriculumId || !parentId || !changeRequest) {
+    return res.status(400).json({ error: 'Missing required fields.' });
+  }
+  try {
+    // Fetch the previous curriculum from Firestore
+    const curriculumDoc = await db.collection('curricula').doc(curriculumId).get();
+    if (!curriculumDoc.exists) {
+      return res.status(404).json({ error: 'Curriculum not found.' });
+    }
+    const previousCurriculum = curriculumDoc.data().curriculum;
+    // Prepare prompt for LLM
+    const prompt = `Você é um planejador educacional especialista. Aqui está o currículo anterior:\n\n${previousCurriculum}\n\nO responsável solicitou as seguintes mudanças:\n${changeRequest}\n\nPor favor, gere uma nova versão do currículo, incorporando as mudanças solicitadas. Mantenha o mesmo formato e estrutura, em português.`;
+    // Call OpenAI API
+    const apiKey = process.env.OPENAI_API_KEY || (functions.config().openai && functions.config().openai.key);
+    const axios = require('axios');
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 2000,
+        temperature: 0.7,
+      },
+      {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      }
+    );
+    const newCurriculum = response.data.choices[0].message.content;
+    // Update Firestore with the new curriculum
+    await db.collection('curricula').doc(curriculumId).update({
+      curriculum: newCurriculum,
+      status: 'pending_review',
+      changeRequestedBy: parentId,
+      changeRequestedAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastChangeRequest: changeRequest,
+    });
+    return res.status(200).json({ success: true, curriculum: newCurriculum });
+  } catch (error) {
+    console.error('Error updating curriculum with LLM:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/cancelCurriculum', async (req, res) => {
+  const { curriculumId, parentId } = req.body;
+  if (!curriculumId || !parentId) {
+    return res.status(400).json({ error: 'Missing required fields.' });
+  }
+  try {
+    await db.collection('curricula').doc(curriculumId).delete();
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error deleting curriculum:', error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
