@@ -3,10 +3,8 @@ const functions = require('firebase-functions');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const axios = require('axios');
 const { OpenAI } = require('openai');
 const admin = require('firebase-admin');
-const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 
 admin.initializeApp();
@@ -177,19 +175,14 @@ Follow this structure:
 
 Return the result as a JSON object with the following fields: title, overview, objectives, keyConcepts, lessons, assessment, resources. All content must be in Portuguese and suitable for Brazilian children aged ${ageRange}.`;
     const apiKey = process.env.OPENAI_API_KEY || (functions.config().openai && functions.config().openai.key);
-    const response = await axios.post(
-      'https://api.openai.com/v1/chat/completions',
-      {
-        model: 'gpt-4o',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2000,
-        temperature: 0.7,
-      },
-      {
-        headers: { Authorization: `Bearer ${apiKey}` },
-      }
-    );
-    let rawContent = response.data.choices[0].message.content;
+    const openai = new OpenAI({ apiKey });
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 2000,
+      temperature: 0.7,
+    });
+    let rawContent = response.choices[0].message.content;
     // Log raw response for debugging
     console.log('Raw AI response:', rawContent);
     // Sanitize: Remove markdown code block if present
@@ -250,26 +243,6 @@ app.post('/api/approveCurriculum', async (req, res) => {
   }
 });
 
-app.post('/api/rejectCurriculum', async (req, res) => {
-  const { curriculumId, parentId, reason } = req.body;
-  if (!curriculumId || !parentId) {
-    return res.status(400).json({ error: 'Missing required fields.' });
-  }
-  try {
-    const curriculumRef = db.collection('curricula').doc(curriculumId);
-    await curriculumRef.update({
-      status: 'rejected',
-      rejectedBy: parentId,
-      rejectedAt: admin.firestore.FieldValue.serverTimestamp(),
-      rejectionReason: reason || '',
-    });
-    return res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('Error rejecting curriculum:', error);
-    return res.status(500).json({ error: error.message });
-  }
-});
-
 app.post('/api/requestCurriculumChanges', async (req, res) => {
   const { curriculumId, parentId, changeRequest } = req.body;
   if (!curriculumId || !parentId || !changeRequest) {
@@ -284,22 +257,17 @@ app.post('/api/requestCurriculumChanges', async (req, res) => {
     const previousCurriculum = curriculumDoc.data().curriculum;
     // Prepare prompt for LLM
     const prompt = `Você é um planejador educacional especialista. Aqui está o currículo anterior:\n\n${previousCurriculum}\n\nO responsável solicitou as seguintes mudanças:\n${changeRequest}\n\nPor favor, gere uma nova versão do currículo, incorporando as mudanças solicitadas. Mantenha o mesmo formato e estrutura, em português.`;
-    // Call OpenAI API
+    // Call OpenAI using the official library
     const apiKey = process.env.OPENAI_API_KEY || (functions.config().openai && functions.config().openai.key);
-    const axios = require('axios');
-    const response = await axios.post(
-      'https://api.openai.com/v1/chat/completions',
-      {
-        model: 'gpt-4o',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2000,
-        temperature: 0.7,
-      },
-      {
-        headers: { Authorization: `Bearer ${apiKey}` },
-      }
-    );
-    const newCurriculum = response.data.choices[0].message.content;
+    const { OpenAI } = require('openai');
+    const openai = new OpenAI({ apiKey });
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 2000,
+      temperature: 0.7,
+    });
+    const newCurriculum = response.choices[0].message.content;
     // Update Firestore with the new curriculum
     await db.collection('curricula').doc(curriculumId).update({
       curriculum: newCurriculum,
