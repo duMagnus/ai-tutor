@@ -125,4 +125,34 @@ app.get('/api/userinfo', async (req, res) => {
   }
 });
 
+app.get('/api/parent/children', async (req, res) => {
+  const { parentUid } = req.query;
+  if (!parentUid) {
+    return res.status(400).json({ message: 'Missing parentUid' });
+  }
+  try {
+    // Find children with parentId == parentUid
+    const childrenSnap = await admin.firestore().collection('users')
+      .where('parentId', '==', parentUid)
+      .where('role', '==', 'child')
+      .get();
+    const children = [];
+    for (const doc of childrenSnap.docs) {
+      const data = doc.data();
+      // Example: fetch progress metrics (stub, replace with real metrics if available)
+      // You can extend this to fetch from a 'progress' collection if needed
+      children.push({
+        uid: doc.id,
+        email: data.email,
+        name: data.name || '',
+        progress: data.progress || 0, // percent complete
+        timeSpent: data.timeSpent || 0 // minutes
+      });
+    }
+    return res.status(200).json({ children });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+});
+
 exports.llmHandler = functions.https.onRequest(app);

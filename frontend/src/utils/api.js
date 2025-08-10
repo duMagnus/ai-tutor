@@ -64,3 +64,14 @@ export const getUserInfo = async (uid) => {
     throw error.response?.data || { message: error.message };
   }
 };
+
+export const getParentChildren = async (parentUid) => {
+  try {
+    const response = await axios.get(
+      `https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/parent/children?parentUid=${parentUid}`
+    );
+    return response.data.children;
+  } catch (error) {
+    throw error.response?.data || { message: error.message };
+  }
+};

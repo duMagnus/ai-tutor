@@ -379,7 +379,7 @@ By following these steps, you can securely and efficiently integrate LLM functio
 
 ### 3. Parent Dashboard
 - Create dashboard for parents to view/manage child accounts.
-- Display child progress, time spent, and learning metrics (charts).
+- Display child progress, time spent, and key metrics (charts).
 - Technologies: React, Firestore, Chart.js/Recharts.
 
 ### 4. Child Dashboard & Onboarding
@@ -472,6 +472,40 @@ This section describes how parent and child authentication and role management a
 
 ---
 
-## Backend-Only Database Access Policy
+## Parent Dashboard Implementation Details
 
-**Important:** All Firestore and database operations must be performed via backend endpoints (Firebase Functions). The frontend must never call Firestore or any database directly. This ensures security, proper access control, and maintainability. All data required by the frontend should be fetched through secure backend APIs.
+This section describes how the Parent Dashboard is implemented in the AI Tutor application.
+
+### Overview
+- The Parent Dashboard allows parents to manage child accounts, view progress, and access learning metrics.
+- All data is fetched via backend endpoints (Firebase Functions), never directly from the frontend.
+- The dashboard is designed to be clean, data-focused, and engaging for parents.
+
+### Implementation Details
+1. **Invite Code Display**
+   - The dashboard displays the parent's unique invite code, which can be shared with children for onboarding.
+   - The invite code is fetched from the backend via a secure API endpoint.
+
+2. **Child Account Management**
+   - Parents can view a list of their child accounts linked via the invite code.
+   - Future enhancements may include adding/removing children and managing permissions.
+
+3. **Progress & Metrics Visualization**
+   - The dashboard shows each child's learning progress, time spent, and key metrics using charts (e.g., Chart.js or Recharts).
+   - Data is fetched from backend endpoints that aggregate and return relevant metrics.
+
+4. **Role-Based Access**
+   - Only users with the parent role can access the Parent Dashboard.
+   - The frontend routes authenticated parents to the Parent Dashboard after login/signup.
+
+5. **Technologies Used**
+   - **React**: Frontend UI and routing.
+   - **Firebase Functions**: Backend endpoints for secure data access.
+   - **Firestore**: Stores user, child, and progress data (accessed only via backend).
+   - **Chart.js/Recharts**: For data visualization.
+
+---
+
+## Database Access Policy
+
+All database (Firestore) access must be performed through backend endpoints (Firebase Functions). The frontend should never access Firestore or any database directly. Instead, the frontend must call backend APIs, and only the backend is responsible for reading/writing to the database. This ensures security, proper access control, and maintainability.
