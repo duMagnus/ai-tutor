@@ -53,3 +53,14 @@ export const signup = async (data) => {
     throw error.response?.data || { message: error.message };
   }
 };
+
+export const getUserInfo = async (uid) => {
+  try {
+    const response = await axios.get(
+      `https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/userinfo?uid=${uid}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: error.message };
+  }
+};

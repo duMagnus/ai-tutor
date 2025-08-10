@@ -108,4 +108,21 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
+app.get('/api/userinfo', async (req, res) => {
+  const { uid } = req.query;
+  if (!uid) {
+    return res.status(400).json({ message: 'Missing uid' });
+  }
+  try {
+    const userDoc = await admin.firestore().collection('users').doc(uid).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const { role, inviteCode } = userDoc.data();
+    return res.status(200).json({ role, inviteCode });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+});
+
 exports.llmHandler = functions.https.onRequest(app);

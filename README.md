@@ -471,3 +471,7 @@ This section describes how parent and child authentication and role management a
 - **React**: Frontend UI and routing.
 
 ---
+
+## Backend-Only Database Access Policy
+
+**Important:** All Firestore and database operations must be performed via backend endpoints (Firebase Functions). The frontend must never call Firestore or any database directly. This ensures security, proper access control, and maintainability. All data required by the frontend should be fetched through secure backend APIs.
