@@ -347,4 +347,61 @@ app.get('/api/child/approvedCurricula', async (req, res) => {
   }
 });
 
+// Session and lesson management for AI tutoring
+app.post('/api/subject/session', async (req, res) => {
+  // Start or fetch a tutoring session for a child and subject
+  const { childId, curriculumId, subjectName } = req.body;
+  if (!childId || !curriculumId || !subjectName) {
+    return res.status(400).json({ error: 'Missing required fields.' });
+  }
+  try {
+    // Try to find an existing session
+    const sessionSnap = await db.collection('sessions')
+      .where('childId', '==', childId)
+      .where('curriculumId', '==', curriculumId)
+      .limit(1)
+      .get();
+    let sessionDoc;
+    if (!sessionSnap.empty) {
+      sessionDoc = sessionSnap.docs[0];
+      return res.status(200).json({ sessionId: sessionDoc.id, ...sessionDoc.data() });
+    }
+    // If not found, create a new session
+    const newSession = {
+      childId,
+      curriculumId,
+      subjectName,
+      startedAt: admin.firestore.FieldValue.serverTimestamp(),
+      currentLesson: 0,
+      completedLessons: [],
+      chatHistory: [],
+      status: 'active',
+    };
+    const docRef = await db.collection('sessions').add(newSession);
+    return res.status(201).json({ sessionId: docRef.id, ...newSession });
+  } catch (error) {
+    console.error('Error starting/fetching session:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/subject/progress', async (req, res) => {
+  // Update lesson progress and chat history for a session
+  const { sessionId, currentLesson, completedLessons, chatHistory } = req.body;
+  if (!sessionId) {
+    return res.status(400).json({ error: 'Missing sessionId.' });
+  }
+  try {
+    const update = {};
+    if (currentLesson !== undefined) update.currentLesson = currentLesson;
+    if (completedLessons !== undefined) update.completedLessons = completedLessons;
+    if (chatHistory !== undefined) update.chatHistory = chatHistory;
+    await db.collection('sessions').doc(sessionId).update(update);
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error updating session progress:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 exports.llmHandler = functions.https.onRequest(app);

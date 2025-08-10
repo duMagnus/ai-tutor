@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { auth } from '../firebase';
-import { getApprovedCurriculaForChild } from '../utils/api';
+import { getApprovedCurricula } from '../utils/api';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -51,8 +51,8 @@ function Dashboard() {
       try {
         const user = auth.currentUser;
         if (user) {
-          const data = await getApprovedCurriculaForChild(user.uid);
-          setCurricula(data);
+          const data = await getApprovedCurricula(user.uid);
+          setCurricula(data.curricula);
         } else {
           setError('Usuário não autenticado.');
         }

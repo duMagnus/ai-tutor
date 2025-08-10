@@ -642,3 +642,96 @@ Return the result as a JSON object with the following fields: title, overview, o
 ## Database Access Policy
 
 All database (Firestore) access must be performed through backend endpoints (Firebase Functions). The frontend should never access Firestore or any database directly. Instead, the frontend must call backend APIs, and only the backend is responsible for reading/writing to the database. This ensures security, proper access control, and maintainability.
+
+## Subject Page & AI Tutoring Sessions Implementation Details
+
+This section describes how the Subject Page and AI Tutoring Sessions are implemented in the AI Tutor application, covering backend logic, frontend experience, technical architecture, and design considerations.
+
+### Overview
+- The Subject Page is a dynamic template that displays lessons, exercises, and interactive tutoring for a selected subject or curriculum.
+- Children interact with an AI tutor via a chat interface, receiving step-by-step guidance, explanations, and exercises.
+- All lesson content and tutoring interactions are powered by OpenAI models, orchestrated via Firebase Functions.
+- Progress is tracked and stored in Firestore, with visual feedback in the UI.
+
+### Technical Implementation
+
+1. **Dynamic Routing & Data Fetching**
+    - The Subject Page is rendered based on the selected subject or curriculum card from the dashboard.
+    - React Router is used for dynamic navigation (e.g., `/subject/:subjectId`).
+    - On page load, the frontend fetches curriculum details and progress for the logged-in child via backend API endpoints (Firebase Functions).
+    - All Firestore access is performed via backend endpoints; the frontend never queries Firestore directly.
+
+2. **AI Tutoring Chat Interface**
+    - The central feature is a chat window where children interact with the AI tutor.
+    - The chat interface supports:
+        - Markdown rendering (for math, code, formatted explanations)
+        - Streaming responses (showing AI typing effect)
+        - Message history (persisted per session/subject)
+        - User input via text field and send button
+    - When a child sends a message, the frontend calls a backend endpoint (Firebase Function) that forwards the message and context to the OpenAI API.
+    - The backend function manages session state, lesson progression, and context for the AI model.
+    - The AI model is instructed to guide the child step-by-step, encourage problem-solving, and avoid simply giving answers.
+
+3. **Lesson Progression & State Management**
+    - Each curriculum consists of multiple lessons/modules, each with objectives, key concepts, and exercises.
+    - The Subject Page tracks which lesson/module the child is currently working on.
+    - Progress (completed lessons, exercises, chat history) is stored in Firestore via backend endpoints.
+    - The UI displays progress bars, completion status, and allows navigation between lessons/modules.
+
+4. **Backend Orchestration**
+    - Firebase Functions handle:
+        - Fetching curriculum and progress data
+        - Managing chat sessions and lesson state
+        - Calling OpenAI API for tutoring responses
+        - Updating progress and completion status
+    - All business logic (e.g., lesson advancement, answer validation) is handled server-side for security and consistency.
+
+5. **Frontend Experience & UX**
+    - The Subject Page is visually engaging, with:
+        - A prominent subject title and lesson/module indicator
+        - Chat bubbles for AI and user messages, with avatars/icons
+        - Progress bars and completion badges
+        - Responsive layout for desktop and mobile
+        - Loading indicators for AI responses
+    - Accessibility features include readable fonts, sufficient contrast, and keyboard navigation.
+    - All text and instructions are in Portuguese, culturally adapted for Brazilian children.
+
+6. **Design & Styling**
+    - Follows the platform's style guide:
+        - Primary color for subject header and chat bubbles
+        - Rounded corners, soft shadows for cards and chat window
+        - Consistent spacing and typography
+    - Markdown support for math, code, and formatted explanations
+    - Animated transitions for chat messages and progress updates
+
+7. **Error Handling & Edge Cases**
+    - Graceful handling of network/API errors, with retry options and user feedback
+    - Validation for empty/invalid user input
+    - Session timeouts and reconnection logic
+
+8. **Future Enhancements**
+    - Gamification: badges for lesson completion, streaks for daily study
+    - Adaptive tutoring: AI adjusts lesson difficulty based on child’s progress
+    - Parent feedback: allow parents to review chat history and lesson outcomes
+    - Community Q&A: children can ask questions and see answers from tutors or peers
+
+### Technologies Used
+- **React**: Frontend UI, routing, and state management
+- **Firebase Functions**: Backend endpoints for data access and AI orchestration
+- **Firestore**: Storing curriculum, progress, and chat history (accessed only via backend)
+- **OpenAI API**: Generating tutoring responses and lesson guidance
+- **CSS-in-JS or CSS Modules**: Styling according to the platform’s visual guide
+- **Markdown Renderer**: For chat message formatting (e.g., react-markdown)
+
+---
+
+#### Example User Flow
+1. Child clicks a curriculum card in the dashboard (e.g., "Matemática: Aventura na Adição").
+2. Subject Page loads, displaying the subject title, current lesson/module, and chat window.
+3. Child interacts with the AI tutor, receiving explanations, exercises, and feedback.
+4. Progress is tracked and displayed visually; completed lessons are marked as done.
+5. Child can navigate between lessons/modules, revisit previous chats, and see overall progress.
+
+---
+
+This implementation ensures a seamless, interactive, and engaging learning experience, leveraging AI to provide personalized tutoring while maintaining parental oversight and progress tracking.

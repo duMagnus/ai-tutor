@@ -133,13 +133,28 @@ export const cancelCurriculum = async ({ curriculumId, parentId }) => {
   }
 };
 
-export const getApprovedCurriculaForChild = async (childId) => {
-  try {
-    const response = await axios.get(
-      `https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/child/approvedCurricula?childId=${childId}`
-    );
-    return response.data.curricula;
-  } catch (error) {
-    throw error.response?.data || { message: error.message };
-  }
+// Get approved curricula for a child
+export const getApprovedCurricula = async (childId) => {
+  const response = await axios.get(
+    `https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/child/approvedCurricula?childId=${childId}`
+  );
+  return response.data;
+};
+
+// Start or fetch a tutoring session
+export const startOrFetchSession = async ({ childId, curriculumId, subjectName }) => {
+  const response = await axios.post(
+    'https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/subject/session',
+    { childId, curriculumId, subjectName }
+  );
+  return response.data;
+};
+
+// Update session progress (lesson index, chat history)
+export const updateSessionProgress = async ({ sessionId, currentLesson, chatHistory }) => {
+  const response = await axios.post(
+    'https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/subject/progress',
+    { sessionId, currentLesson, chatHistory }
+  );
+  return response.data;
 };
