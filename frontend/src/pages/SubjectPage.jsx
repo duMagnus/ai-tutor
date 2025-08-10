@@ -123,36 +123,36 @@ function SubjectPage() {
   };
 
   return (
-    <div className="page-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="page-container">
       <Navbar />
-      <div className="page-content" style={{ flex: 1, display: 'flex', flexDirection: 'row', gap: '2rem', overflow: 'hidden', padding: '3rem' }}>
+      <div className="page-content">
         {/* Lessons/Info on the left */}
-        <div style={{ flex: '0 0 400px', minWidth: '320px', maxWidth: '480px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
+        <div className="lesson-sidebar">
+          <div className="lesson-header">
+            <button onClick={() => navigate(-1)} className="back-button">
               <FaArrowLeft size={24} color="#3b82f6" />
             </button>
-            <h1 style={{ fontSize: '2.5rem', color: '#1f2937', margin: 0 }}>{subjectName}</h1>
+            <h1 className="subject-title">{subjectName}</h1>
           </div>
           {curriculum && (
-            <div className="lesson-info" style={{ marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem', color: '#3b82f6' }}>Lição {lessonIdx + 1}: {curriculum.lessons[lessonIdx]?.title}</h2>
-              <p style={{ color: '#4b5563' }}>{curriculum.lessons[lessonIdx]?.description}</p>
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-                <button onClick={handlePrevLesson} disabled={lessonIdx === 0} style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', background: '#e5e7eb', color: '#1f2937', cursor: lessonIdx === 0 ? 'not-allowed' : 'pointer' }}>Anterior</button>
-                <button onClick={handleNextLesson} disabled={lessonIdx === curriculum.lessons.length - 1} style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', background: '#e5e7eb', color: '#1f2937', cursor: lessonIdx === curriculum.lessons.length - 1 ? 'not-allowed' : 'pointer' }}>Próxima</button>
+            <div className="lesson-info">
+              <h2 className="lesson-title">Lição {lessonIdx + 1}: {curriculum.lessons[lessonIdx]?.title}</h2>
+              <p className="lesson-description">{curriculum.lessons[lessonIdx]?.description}</p>
+              <div className="lesson-nav">
+                <button onClick={handlePrevLesson} disabled={lessonIdx === 0} className="lesson-nav-btn prev-btn">Anterior</button>
+                <button onClick={handleNextLesson} disabled={lessonIdx === curriculum.lessons.length - 1} className="lesson-nav-btn next-btn">Próxima</button>
               </div>
-              <div style={{ marginTop: '1rem' }}>
+              <div className="lesson-goals">
                 <strong>Metas:</strong> {Array.isArray(curriculum.lessons[lessonIdx]?.goals) ? curriculum.lessons[lessonIdx].goals.join(', ') : curriculum.lessons[lessonIdx]?.learningGoals}
               </div>
-              <div style={{ marginTop: '0.5rem' }}>
+              <div className="lesson-activities">
                 <strong>Atividades:</strong> {Array.isArray(curriculum.lessons[lessonIdx]?.activities) ? curriculum.lessons[lessonIdx].activities.join(', ') : curriculum.lessons[lessonIdx]?.activities}
               </div>
-              <div style={{ marginTop: '1rem' }}>
-                <div style={{ height: '8px', background: '#e5e7eb', borderRadius: '4px', width: '100%', marginBottom: '0.5rem' }}>
-                  <div style={{ height: '8px', background: '#3b82f6', borderRadius: '4px', width: `${((lessonIdx + 1) / curriculum.lessons.length) * 100}%` }}></div>
+              <div className="lesson-progress">
+                <div className="progress-bar-bg">
+                  <div className="progress-bar" style={{ width: `${((lessonIdx + 1) / curriculum.lessons.length) * 100}%` }}></div>
                 </div>
-                <span style={{ color: '#4b5563' }}>Progresso: {lessonIdx + 1} / {curriculum.lessons.length}</span>
+                <span className="progress-text">Progresso: {lessonIdx + 1} / {curriculum.lessons.length}</span>
               </div>
             </div>
           )}
