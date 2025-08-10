@@ -82,6 +82,7 @@ export const generateCurriculum = async ({ parentId, childId, subject, ageRange 
       'https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/generateCurriculum',
       { parentId, childId, subject, ageRange }
     );
+    // Response now includes: curriculumId, title, overview, objectives, keyConcepts, lessons, assessment, resources
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: error.message };
@@ -102,19 +103,6 @@ export const approveCurriculum = async ({ curriculumId, parentId, childId }) => 
     return response.data;
   } catch (error) {
     console.error("Erro ao aprovar o currículo:", error);
-    throw error;
-  }
-};
-
-export const rejectCurriculum = async ({ curriculumId, parentId, reason }) => {
-  try {
-    const response = await axios.post(
-      "https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/rejectCurriculum",
-      { curriculumId, parentId, reason }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Erro ao rejeitar o currículo:", error);
     throw error;
   }
 };
@@ -142,5 +130,16 @@ export const cancelCurriculum = async ({ curriculumId, parentId }) => {
   } catch (error) {
     console.error("Erro ao cancelar o currículo:", error);
     throw error;
+  }
+};
+
+export const getApprovedCurriculaForChild = async (childId) => {
+  try {
+    const response = await axios.get(
+      `https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/api/child/approvedCurricula?childId=${childId}`
+    );
+    return response.data.curricula;
+  } catch (error) {
+    throw error.response?.data || { message: error.message };
   }
 };

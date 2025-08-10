@@ -163,18 +163,19 @@ app.post('/api/generateCurriculum', async (req, res) => {
     const prompt = `You are an expert educational planner. Create a curriculum for the subject: ${subject}.
 
 Follow this structure:
-1. Overview: Briefly describe the subject and its importance for the child's age group.
-2. Learning Objectives: List 3-5 clear, age-appropriate objectives for the curriculum.
-3. Key Concepts: List the main concepts or skills to be covered.
-4. Lesson Breakdown: Divide the curriculum into 4-8 lessons/modules. For each lesson, provide:
+1. Title: A very short, clear title for the curriculum (max 5 words).
+2. Overview: Briefly describe the subject and its importance for the child's age group.
+3. Learning Objectives: List 3-5 clear, age-appropriate objectives for the curriculum.
+4. Key Concepts: List the main concepts or skills to be covered.
+5. Lesson Breakdown: Divide the curriculum into 4-8 lessons/modules. For each lesson, provide:
    - Title
    - Description
    - Learning goals
    - Suggested activities/exercises
-5. Assessment: Suggest ways to assess the child's understanding (quizzes, projects, etc).
-6. Additional Resources: Recommend further reading, videos, or interactive materials (if relevant).
+6. Assessment: Suggest ways to assess the child's understanding (quizzes, projects, etc).
+7. Additional Resources: Recommend further reading, videos, or interactive materials (if relevant).
 
-All content must be in Portuguese and suitable for Brazilian children aged ${ageRange}.`;
+Return the result as a JSON object with the following fields: title, overview, objectives, keyConcepts, lessons, assessment, resources. All content must be in Portuguese and suitable for Brazilian children aged ${ageRange}.`;
     const apiKey = process.env.OPENAI_API_KEY || (functions.config().openai && functions.config().openai.key);
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
@@ -188,18 +189,36 @@ All content must be in Portuguese and suitable for Brazilian children aged ${age
         headers: { Authorization: `Bearer ${apiKey}` },
       }
     );
-    const curriculumText = response.data.choices[0].message.content;
+    let rawContent = response.data.choices[0].message.content;
+    // Log raw response for debugging
+    console.log('Raw AI response:', rawContent);
+    // Sanitize: Remove markdown code block if present
+    let curriculumJson;
+    try {
+      // Remove triple backticks and optional "json" label
+      rawContent = rawContent.replace(/^```json[\r\n]+|^```[\r\n]+|```$/gm, '').trim();
+      curriculumJson = JSON.parse(rawContent);
+    } catch (e) {
+      console.error('Failed to parse curriculum JSON:', rawContent);
+      return res.status(500).json({ error: 'Failed to parse curriculum JSON from AI.', raw: rawContent });
+    }
     const docRef = admin.firestore().collection('curricula').doc();
     await docRef.set({
       parentId,
       childId,
       subject,
       ageRange,
-      curriculum: curriculumText,
+      title: curriculumJson.title,
+      overview: curriculumJson.overview,
+      objectives: curriculumJson.objectives,
+      keyConcepts: curriculumJson.keyConcepts,
+      lessons: curriculumJson.lessons,
+      assessment: curriculumJson.assessment,
+      resources: curriculumJson.resources,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       status: 'pending_review',
     });
-    res.status(200).json({ curriculumId: docRef.id, curriculum: curriculumText });
+    res.status(200).json({ curriculumId: docRef.id, ...curriculumJson });
   } catch (error) {
     console.error('Error generating curriculum:', error);
     res.status(500).json({ error: error.message });
@@ -306,6 +325,24 @@ app.post('/api/cancelCurriculum', async (req, res) => {
     return res.status(200).json({ success: true });
   } catch (error) {
     console.error('Error deleting curriculum:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/child/approvedCurricula', async (req, res) => {
+  try {
+    const { childId } = req.query;
+    if (!childId) {
+      return res.status(400).json({ error: 'childId is required' });
+    }
+    const snapshot = await db.collection('curricula')
+      .where('childId', '==', childId)
+      .where('status', '==', 'approved')
+      .get();
+    const curricula = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return res.status(200).json({ curricula });
+  } catch (error) {
+    console.error('Error fetching approved curricula for child:', error);
     return res.status(500).json({ error: error.message });
   }
 });

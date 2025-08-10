@@ -151,7 +151,7 @@ These guidelines aim to create a cohesive and user-friendly design across the ap
 
 ### Best Practices: Avoid Inline Styles
 - **All component styling must be handled via CSS files or CSS-in-JS solutions.**
-- **Inline styles should be avoided** to ensure maintainability, consistency, and easier updates across the platform.
+- **Inline styles should always be avoided** to ensure maintainability, consistency, and easier updates across the platform.
 - Always use CSS classes and follow the style guide for colors, spacing, borders, and typography.
 
 ## User Dashboard
@@ -545,95 +545,45 @@ This section describes how the Child Dashboard and onboarding flow are implement
 
 This section describes how AI Curriculum Generation is implemented in the AI Tutor application, covering backend logic, user experience, and design considerations.
 
-### Overview
-- The AI Curriculum Generation feature allows parents to request personalized lesson plans and exercise themes for their children, based on selected study topics.
-- Parents review the generated curriculum and, if satisfied, approve and assign it to their child for study.
-- Curriculum plans are generated on demand and cached for efficiency, ensuring quick access and minimizing repeated API calls.
-- The experience is designed to be seamless, engaging, and tailored to each child's learning needs, with parental oversight.
+#### Curriculum Generation Prompt & Response Structure
+- When a parent requests a curriculum, the backend sends a prompt to the AI model instructing it to:
+  - Generate a **very short, clear title** for the curriculum (max 5 words), suitable for use as a card label in the child dashboard.
+  - Return the curriculum as a **JSON object** with the following fields:
+    - `title`: Very short curriculum title (used in dashboard cards)
+    - `overview`: Brief description of the subject and its importance
+    - `objectives`: Array of 3-5 learning objectives
+    - `keyConcepts`: Array of key concepts/skills
+    - `lessons`: Array of lesson/module objects (each with title, description, goals, activities)
+    - `assessment`: Suggestions for assessment (quizzes, projects, etc)
+    - `resources`: Additional resources (reading, videos, etc)
+- All content is generated in Portuguese and age-appropriate for Brazilian children.
+- The backend parses the AI's JSON response and stores each field in Firestore for retrieval and display.
+- The frontend displays the curriculum title in the dashboard card, and uses the other fields for detailed curriculum review and lesson delivery.
 
-### Implementation Details
-1. **Parent-Requested Curriculum Generation & Review**
-   - Parents select or request a study topic for their child from the Parent Dashboard.
-   - The frontend sends a request to a Firebase Function endpoint to generate a curriculum for the selected topic and child.
-   - The backend function calls the OpenAI API (GPT-4o or similar) to generate a curriculum outline and exercise themes for the topic.
-   - Generated plans are stored in Firestore and associated with the parent, child, and topic for future retrieval (caching).
-   - Parents review the generated curriculum in a dedicated review interface, which includes lesson objectives, key concepts, recommended exercises, and suggested progression.
-   - If the parent approves the curriculum, it is assigned to the child and becomes available in the Child Dashboard for study.
-   - The backend ensures that plans are age-appropriate and relevant to the selected topic.
-
-2. **Frontend Experience**
-   - Parents see a loading animation or progress indicator while the curriculum is being generated.
-   - The review interface presents the curriculum in a visually engaging format: cards, lists, or step-by-step modules.
-   - Parents can approve, reject, or request changes to the curriculum before assigning it to their child.
-   - Once approved, children see the curriculum in their dashboard, with progress tracking and completion status.
-   - Children can revisit previously assigned plans from their dashboard.
-
-3. **User Experience & Design**
-   - The curriculum review and assignment flow uses the platform's bright, playful style: colorful cards, icons, and progress bars.
-   - Lesson objectives and key concepts are highlighted for clarity.
-   - Responsive design ensures usability on both desktop and mobile devices.
-   - Accessibility features (contrast, readable fonts, alt text) are included for all curriculum content.
-
-4. **Caching & Efficiency**
-   - Curriculum plans are cached in Firestore to avoid repeated API calls for the same topic and user.
-   - The frontend checks for existing plans before requesting new ones, providing instant access when available.
-
-5. **Localization**
-   - All curriculum content is generated and displayed in Portuguese, ensuring cultural relevance for Brazilian users.
-   - The UX supports easy switching between topics and revisiting completed modules.
-
-6. **Future Enhancements**
-   - Add gamification elements (badges, streaks) for completing lesson plans.
-   - Enable parents to suggest curriculum themes and provide feedback on generated plans.
-   - Support for adaptive learning: curriculum adjusts based on child’s progress and feedback.
-   - Allow children to request topics, with parent approval required before curriculum generation.
-
-### Technologies Used
-- **Firebase Functions**: Backend logic and OpenAI API integration.
-- **Firestore**: Storing and caching generated curriculum plans.
-- **OpenAI API**: Generating lesson plans and exercise themes.
-- **React**: Frontend UI and routing.
-- **CSS-in-JS or CSS Modules**: Styling curriculum views according to the platform’s visual guide.
-
----
-
-## AI Curriculum Generation Template
-
-To ensure consistency and quality in AI-generated curricula, a standardized template is used when requesting curriculum plans from the AI. This template guides the AI to produce structured, pedagogically sound lesson plans for any subject.
-
-### Curriculum Template Structure
-When a parent requests a curriculum, the following template is sent to the AI:
-
-**Curriculum Generation Prompt Template:**
-
+#### Example AI Prompt
 ```
 You are an expert educational planner. Create a curriculum for the subject: [SUBJECT NAME].
 
 Follow this structure:
-1. Overview: Briefly describe the subject and its importance for the child's age group.
-2. Learning Objectives: List 3-5 clear, age-appropriate objectives for the curriculum.
-3. Key Concepts: List the main concepts or skills to be covered.
-4. Lesson Breakdown: Divide the curriculum into 4-8 lessons/modules. For each lesson, provide:
+1. Title: A very short, clear title for the curriculum (max 5 words).
+2. Overview: Briefly describe the subject and its importance for the child's age group.
+3. Learning Objectives: List 3-5 clear, age-appropriate objectives for the curriculum.
+4. Key Concepts: List the main concepts or skills to be covered.
+5. Lesson Breakdown: Divide the curriculum into 4-8 lessons/modules. For each lesson, provide:
    - Title
    - Description
    - Learning goals
    - Suggested activities/exercises
-5. Assessment: Suggest ways to assess the child's understanding (quizzes, projects, etc).
-6. Additional Resources: Recommend further reading, videos, or interactive materials (if relevant).
+6. Assessment: Suggest ways to assess the child's understanding (quizzes, projects, etc).
+7. Additional Resources: Recommend further reading, videos, or interactive materials (if relevant).
 
-All content must be in Portuguese and suitable for Brazilian children aged [AGE RANGE].
+Return the result as a JSON object with the following fields: title, overview, objectives, keyConcepts, lessons, assessment, resources. All content must be in Portuguese and suitable for Brazilian children aged [AGE RANGE].
 ```
 
-- The [SUBJECT NAME] and [AGE RANGE] are dynamically filled based on the parent's request.
-- This template is sent to the AI via backend (Firebase Function) when generating a new curriculum.
-- The AI's response is parsed and saved in Firestore, following the same structure for easy retrieval and display.
-- The curriculum is then reviewed by the parent and, if approved, assigned to the child for study.
-- The AI tutor uses the curriculum breakdown to guide the child through each lesson interactively.
-
-### Benefits
-- Ensures all curricula are consistent, comprehensive, and age-appropriate.
-- Makes it easy to display, review, and track progress for each lesson/module.
-- Facilitates future enhancements, such as adaptive learning and gamification.
+#### Frontend Display
+- The child dashboard fetches only approved curricula for the logged-in child.
+- Each curriculum is shown as a card labeled with the AI-generated short title.
+- Clicking a card navigates to the subject page for interactive lessons and exercises.
 
 ---
 
