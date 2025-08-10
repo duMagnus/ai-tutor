@@ -506,6 +506,137 @@ This section describes how the Parent Dashboard is implemented in the AI Tutor a
 
 ---
 
+## Child Dashboard & Onboarding Implementation Details
+
+This section describes how the Child Dashboard and onboarding flow are implemented in the AI Tutor application.
+
+### Overview
+- The Child Dashboard provides children with access to study topics, lessons, and progress tracking in a playful, engaging interface.
+- Onboarding is done via invite code or magic link provided by the parent.
+- All data is fetched via backend endpoints (Firebase Functions), never directly from the frontend.
+
+### Implementation Details
+1. **Onboarding with Invite Code**
+   - Children register using an invite code or magic link provided by their parent.
+   - The backend validates the code and links the child to the parent in Firestore.
+
+2. **Dashboard Features**
+   - Children can select or request study topics from a curated list.
+   - The dashboard displays progress bars, completed modules, and recommended topics.
+   - Interactive lessons are delivered via chat interface powered by OpenAI.
+
+3. **Progress Tracking**
+   - The dashboard shows progress for each topic, including completion status and streaks (if gamification is enabled).
+   - Progress data is fetched from backend endpoints and visualized in the UI.
+
+4. **Role-Based Access**
+   - Only users with the child role can access the Child Dashboard.
+   - The frontend routes authenticated children to the Child Dashboard after login/signup.
+
+5. **Technologies Used**
+   - **React**: Frontend UI and routing.
+   - **Firebase Functions**: Backend endpoints for secure data access.
+   - **Firestore**: Stores user, parent, and progress data (accessed only via backend).
+   - **OpenAI API**: For interactive lessons and curriculum generation.
+
+---
+
+## AI Curriculum Generation Implementation Details
+
+This section describes how AI Curriculum Generation is implemented in the AI Tutor application, covering backend logic, user experience, and design considerations.
+
+### Overview
+- The AI Curriculum Generation feature allows parents to request personalized lesson plans and exercise themes for their children, based on selected study topics.
+- Parents review the generated curriculum and, if satisfied, approve and assign it to their child for study.
+- Curriculum plans are generated on demand and cached for efficiency, ensuring quick access and minimizing repeated API calls.
+- The experience is designed to be seamless, engaging, and tailored to each child's learning needs, with parental oversight.
+
+### Implementation Details
+1. **Parent-Requested Curriculum Generation & Review**
+   - Parents select or request a study topic for their child from the Parent Dashboard.
+   - The frontend sends a request to a Firebase Function endpoint to generate a curriculum for the selected topic and child.
+   - The backend function calls the OpenAI API (GPT-4o or similar) to generate a curriculum outline and exercise themes for the topic.
+   - Generated plans are stored in Firestore and associated with the parent, child, and topic for future retrieval (caching).
+   - Parents review the generated curriculum in a dedicated review interface, which includes lesson objectives, key concepts, recommended exercises, and suggested progression.
+   - If the parent approves the curriculum, it is assigned to the child and becomes available in the Child Dashboard for study.
+   - The backend ensures that plans are age-appropriate and relevant to the selected topic.
+
+2. **Frontend Experience**
+   - Parents see a loading animation or progress indicator while the curriculum is being generated.
+   - The review interface presents the curriculum in a visually engaging format: cards, lists, or step-by-step modules.
+   - Parents can approve, reject, or request changes to the curriculum before assigning it to their child.
+   - Once approved, children see the curriculum in their dashboard, with progress tracking and completion status.
+   - Children can revisit previously assigned plans from their dashboard.
+
+3. **User Experience & Design**
+   - The curriculum review and assignment flow uses the platform's bright, playful style: colorful cards, icons, and progress bars.
+   - Lesson objectives and key concepts are highlighted for clarity.
+   - Responsive design ensures usability on both desktop and mobile devices.
+   - Accessibility features (contrast, readable fonts, alt text) are included for all curriculum content.
+
+4. **Caching & Efficiency**
+   - Curriculum plans are cached in Firestore to avoid repeated API calls for the same topic and user.
+   - The frontend checks for existing plans before requesting new ones, providing instant access when available.
+
+5. **Localization**
+   - All curriculum content is generated and displayed in Portuguese, ensuring cultural relevance for Brazilian users.
+   - The UX supports easy switching between topics and revisiting completed modules.
+
+6. **Future Enhancements**
+   - Add gamification elements (badges, streaks) for completing lesson plans.
+   - Enable parents to suggest curriculum themes and provide feedback on generated plans.
+   - Support for adaptive learning: curriculum adjusts based on child’s progress and feedback.
+   - Allow children to request topics, with parent approval required before curriculum generation.
+
+### Technologies Used
+- **Firebase Functions**: Backend logic and OpenAI API integration.
+- **Firestore**: Storing and caching generated curriculum plans.
+- **OpenAI API**: Generating lesson plans and exercise themes.
+- **React**: Frontend UI and routing.
+- **CSS-in-JS or CSS Modules**: Styling curriculum views according to the platform’s visual guide.
+
+---
+
+## AI Curriculum Generation Template
+
+To ensure consistency and quality in AI-generated curricula, a standardized template is used when requesting curriculum plans from the AI. This template guides the AI to produce structured, pedagogically sound lesson plans for any subject.
+
+### Curriculum Template Structure
+When a parent requests a curriculum, the following template is sent to the AI:
+
+**Curriculum Generation Prompt Template:**
+
+```
+You are an expert educational planner. Create a curriculum for the subject: [SUBJECT NAME].
+
+Follow this structure:
+1. Overview: Briefly describe the subject and its importance for the child's age group.
+2. Learning Objectives: List 3-5 clear, age-appropriate objectives for the curriculum.
+3. Key Concepts: List the main concepts or skills to be covered.
+4. Lesson Breakdown: Divide the curriculum into 4-8 lessons/modules. For each lesson, provide:
+   - Title
+   - Description
+   - Learning goals
+   - Suggested activities/exercises
+5. Assessment: Suggest ways to assess the child's understanding (quizzes, projects, etc).
+6. Additional Resources: Recommend further reading, videos, or interactive materials (if relevant).
+
+All content must be in Portuguese and suitable for Brazilian children aged [AGE RANGE].
+```
+
+- The [SUBJECT NAME] and [AGE RANGE] are dynamically filled based on the parent's request.
+- This template is sent to the AI via backend (Firebase Function) when generating a new curriculum.
+- The AI's response is parsed and saved in Firestore, following the same structure for easy retrieval and display.
+- The curriculum is then reviewed by the parent and, if approved, assigned to the child for study.
+- The AI tutor uses the curriculum breakdown to guide the child through each lesson interactively.
+
+### Benefits
+- Ensures all curricula are consistent, comprehensive, and age-appropriate.
+- Makes it easy to display, review, and track progress for each lesson/module.
+- Facilitates future enhancements, such as adaptive learning and gamification.
+
+---
+
 ## Database Access Policy
 
 All database (Firestore) access must be performed through backend endpoints (Firebase Functions). The frontend should never access Firestore or any database directly. Instead, the frontend must call backend APIs, and only the backend is responsible for reading/writing to the database. This ensures security, proper access control, and maintainability.
