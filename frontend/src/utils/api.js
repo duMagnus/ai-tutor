@@ -15,9 +15,10 @@ export const sendMessageToLLM = async (prompt) => {
   }
 };
 
-export const streamMessageToLLM = (prompt, onChunk, onDone, onError) => {
-  const url = `https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/stream?prompt=${encodeURIComponent(
-    prompt
+export const streamMessageToLLM = (messages, onChunk, onDone, onError) => {
+  // Send the full chat history as a JSON string in the query
+  const url = `https://us-central1-ai-tutor-52b5b.cloudfunctions.net/llmHandler/stream?messages=${encodeURIComponent(
+    JSON.stringify(messages)
   )}`;
   const eventSource = new EventSource(url);
   let buffer = "";

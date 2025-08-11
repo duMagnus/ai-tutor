@@ -70,15 +70,21 @@ function SubjectPage() {
     }
   }, [messages, lessonIdx, session]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim()) {
       setMessages((prev) => [...prev, { sender: 'Student', text: input }]);
       setLoading(true);
       const userInput = input;
       setInput('');
       setMessages((prev) => [...prev, { sender: 'LLM', loading: true, text: '' }]);
+      // Prepare chat history for LLM
+      const historyForLLM = messages
+        .filter(msg => !msg.loading)
+        .map(msg => ({ role: msg.sender === 'Student' ? 'user' : 'assistant', content: msg.text }));
+      // Add the new user message
+      historyForLLM.push({ role: 'user', content: userInput });
       streamMessageToLLM(
-        userInput,
+        historyForLLM,
         (fullText) => {
           setMessages((prev) => {
             const idx = prev.map((msg, i) => ({msg, i})).reverse().find(({msg}) => msg.sender === 'LLM')?.i;

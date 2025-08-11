@@ -16,14 +16,19 @@ app.use(bodyParser.json());
 const db = admin.firestore();
 
 app.get('/stream', async (req, res) => {
-  const prompt = req.query.prompt;
+  let messages;
+  try {
+    messages = JSON.parse(req.query.messages);
+  } catch {
+    messages = req.query.prompt ? [{ role: 'user', content: req.query.prompt }] : [];
+  }
   const apiKey = process.env.OPENAI_API_KEY || (functions.config().openai && functions.config().openai.key);
   if (!apiKey) {
     res.status(500).send('OpenAI API key missing');
     return;
   }
-  if (!prompt) {
-    res.status(400).send('Prompt is required.');
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    res.status(400).send('Messages are required.');
     return;
   }
   res.setHeader('Content-Type', 'text/event-stream');
@@ -34,13 +39,10 @@ app.get('/stream', async (req, res) => {
     const openai = new OpenAI({ apiKey });
     const stream = await openai.chat.completions.create({
       model: 'gpt-4o',
-      messages: [
-        { role: 'system', content: 'Você é um tutor amigável para crianças brasileiras.' },
-        { role: 'user', content: prompt }
-      ],
+      messages,
       stream: true,
     });
-    let buffer = ''; // Buffer to accumulate chunks
+    let buffer = '';
     for await (const chunk of stream) {
       const content = chunk.choices?.[0]?.delta?.content;
       if (content) {
